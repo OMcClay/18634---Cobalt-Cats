@@ -8,7 +8,10 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
+
 @TeleOp (name = "testFieldCentric", group="Linear Opmode")
+
 public class testFieldCentric extends LinearOpMode{
 
     @Override
@@ -32,11 +35,20 @@ public class testFieldCentric extends LinearOpMode{
         imu.resetYaw();
 
         while (opModeIsActive()) {
+
+
             double y = -(gamepad1.left_stick_y);
             double x = gamepad1.left_stick_x;
             double rx = gamepad1.right_stick_x; //rx is right x
 
             double botHeading = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
+            YawPitchRollAngles orientation = imu.getRobotYawPitchRollAngles();
+
+            telemetry.addData("Yaw (Heading)", "%.1f deg", orientation.getYaw(AngleUnit.DEGREES));
+            telemetry.addData("Pitch", "%.1f deg", orientation.getPitch(AngleUnit.DEGREES));
+            telemetry.addData("Roll", "%.1f deg", orientation.getRoll(AngleUnit.DEGREES));
+
+            telemetry.update();
 
             double rotX = x * Math.cos(-botHeading) - y * Math.sin(-botHeading); //rot is rotation
             double rotY = x * Math.sin(-botHeading) + y * Math.cos(-botHeading);
@@ -51,6 +63,8 @@ public class testFieldCentric extends LinearOpMode{
             backLeftMotor.setPower(backLeftPower);
             frontRightMotor.setPower(frontRightPower);
             backRightMotor.setPower(backRightPower);
+
+
 
         }
 
