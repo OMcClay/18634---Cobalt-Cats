@@ -11,6 +11,7 @@ public class test1 extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
         testMotor = hardwareMap.get(DcMotor.class, "frontLeft");
 
+
         waitForStart();
         while (opModeIsActive()) {
             testMotor.setPower(gamepad1.left_stick_x);
