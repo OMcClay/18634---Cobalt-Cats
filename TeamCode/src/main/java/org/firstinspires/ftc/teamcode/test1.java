@@ -9,11 +9,11 @@ public class test1 extends LinearOpMode {
 
     @Override
     public void runOpMode() throws InterruptedException {
-        testMotor = hardwareMap.get(DcMotor.class, "motor");
+        testMotor = hardwareMap.get(DcMotor.class, "frontLeft");
 
         waitForStart();
         while (opModeIsActive()) {
-            testMotor.setPower(1);
+            testMotor.setPower(gamepad1.left_stick_x);
         }
     }
 }
