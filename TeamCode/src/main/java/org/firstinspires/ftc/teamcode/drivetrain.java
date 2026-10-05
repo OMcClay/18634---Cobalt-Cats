@@ -2,26 +2,21 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.util.ElapsedTime;
 
 // UNDER CONSTRUCTION MUST BE FIXED
 
-public class robotHardware {
+public class drivetrain {
+    autoFunctions autoFunc = new autoFunctions();
+
     public DcMotor frontRightMotor = null;
     public DcMotor frontLeftMotor = null;
     public DcMotor backRightMotor = null;
     public DcMotor backLeftMotor = null;
 
-    // Encoder & Hardware Constants
-    public static final double TICKS_PER_MOTOR_REV = 28.0;
-    public static final double GEAR_REDUCTION = 18.88;
-    public static final double WHEEL_DIAMETER_INCHES = 2.95276;
-    public static final double COUNTS_PER_INCH = (TICKS_PER_MOTOR_REV * GEAR_REDUCTION) / (WHEEL_DIAMETER_INCHES * Math.PI);
-
     // Hardware Map reference
     private HardwareMap hwMap = null;
 
-    public robotHardware() {
+    public drivetrain() {
         // Constructor left empty
     }
 
@@ -45,26 +40,34 @@ public class robotHardware {
         backLeftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         // Set initial run modes
-        stopAndResetEncoders();
+        autoFunc.stopAndResetEncoders();
         setRunMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         // Stop all motors
         setDrivePower(0, 0, 0, 0);
     }
 
+//    Drivetrain functions
+
+    //Sets runMode for motors
     public void setRunMode(DcMotor.RunMode mode) {
         frontLeftMotor.setMode(mode);
         frontRightMotor.setMode(mode);
         backLeftMotor.setMode(mode);
         backRightMotor.setMode(mode);
     }
-    public void stopAndResetEncoders() {
-        setRunMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-    }
+
+    //Sets power to motors
     public void setDrivePower(double fl, double fr, double bl, double br) {
         frontLeftMotor.setPower(fl);
         frontRightMotor.setPower(fr);
         backLeftMotor.setPower(bl);
         backRightMotor.setPower(br);
     }
+
+
+//Trying to put fieldcentric drive here:
+//    public void setDrivePower(double )
 }
+
+
