@@ -6,7 +6,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 // UNDER CONSTRUCTION MUST BE FIXED
 
 public class drivetrain {
-    autoFunctions autoFunc = new autoFunctions();
+
 
     public DcMotor frontRightMotor = null;
     public DcMotor frontLeftMotor = null;
