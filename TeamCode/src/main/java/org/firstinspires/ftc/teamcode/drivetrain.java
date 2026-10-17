@@ -20,32 +20,6 @@ public class drivetrain {
         // Constructor left empty
     }
 
-//  initialize
-    public void init(HardwareMap ahwMap) {
-        hwMap = ahwMap;
-
-        // Retrieve motors from Hardware Map configuration
-        frontRightMotor = hwMap.get(DcMotor.class, "frontRight");
-        frontLeftMotor  = hwMap.get(DcMotor.class, "frontLeft");
-        backRightMotor  = hwMap.get(DcMotor.class, "backRight");
-        backLeftMotor   = hwMap.get(DcMotor.class, "backLeft");
-
-        // Set motor directions
-        frontLeftMotor.setDirection(DcMotor.Direction.REVERSE);
-
-        // Set brake behavior
-        frontRightMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        frontLeftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        backRightMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        backLeftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-
-        // Set initial run modes
-        autoFunc.stopAndResetEncoders();
-        setRunMode(DcMotor.RunMode.RUN_USING_ENCODER);
-
-        // Stop all motors
-        setDrivePower(0, 0, 0, 0);
-    }
 
 //    Drivetrain functions
 
@@ -65,6 +39,32 @@ public class drivetrain {
         backRightMotor.setPower(br);
     }
 
+    //  initialize
+    public void init(HardwareMap ahwMap) {
+        hwMap = ahwMap;
+
+        // Retrieve motors from Hardware Map configuration
+        frontRightMotor = hwMap.get(DcMotor.class, "frontRight");
+        frontLeftMotor  = hwMap.get(DcMotor.class, "frontLeft");
+        backRightMotor  = hwMap.get(DcMotor.class, "backRight");
+        backLeftMotor   = hwMap.get(DcMotor.class, "backLeft");
+
+        // Set motor directions
+        frontLeftMotor.setDirection(DcMotor.Direction.REVERSE);
+
+        // Set brake behavior
+        frontRightMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        frontLeftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        backRightMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        backLeftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
+        // Set initial run modes
+        setRunMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        setRunMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+        // Stop all motors
+        setDrivePower(0, 0, 0, 0);
+    }
 
 //Trying to put fieldcentric drive here:
 //    public void setDrivePower(double )

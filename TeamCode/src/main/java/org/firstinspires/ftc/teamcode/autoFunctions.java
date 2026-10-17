@@ -16,13 +16,13 @@ public class autoFunctions {
                 robot.backLeftMotor.isBusy();
     }
 
-    public void setTargetPosition(double distance) {
+    public void setTargetPosition(double distance, int fr , int fl, int br, int bl) {
         double counts = constant.COUNTS_PER_INCH;
         int target = (int)(distance * counts);
-        robot.frontRightMotor.setTargetPosition(target);
-        robot.frontLeftMotor.setTargetPosition(target);
-        robot.backRightMotor.setTargetPosition(target);
-        robot.backLeftMotor.setTargetPosition(target);
+        robot.frontRightMotor.setTargetPosition(fr*target);
+        robot.frontLeftMotor.setTargetPosition(fl*target);
+        robot.backRightMotor.setTargetPosition(br*target);
+        robot.backLeftMotor.setTargetPosition(bl*target);
 
     }
 
@@ -46,41 +46,81 @@ public class autoFunctions {
 //    Driving Functions
     public void forward(double inches, double power) {
         robot.setRunMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        setTargetPosition(inches);
+        setTargetPosition(inches, 1, 1, 1, 1);
         robot.setRunMode(DcMotor.RunMode.RUN_TO_POSITION);
         setPower(power);
         while (opmode.opModeIsActive() && isDrivetrainBusy()) {
             showCurrentPosition();
             opmode.telemetry.update();
         }
-        robot.setDrivePower(0,0,0,0);
+        setPower(0);
         robot.setRunMode((DcMotor.RunMode.RUN_USING_ENCODER));
     }
 
-//    public void backward(double inches, double power) {
-//        robot.setRunMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-//        setTargetPosition(-inches);
-//        robot.setRunMode(DcMotor.RunMode.RUN_TO_POSITION);
-//        frontRightMotor.setPower(Math.abs(power));
-//        frontLeftMotor.setPower(Math.abs(power));
-//        backRightMotor.setPower(Math.abs(power));
-//        backLeftMotor.setPower(Math.abs(power));
-//        while (opModeIsActive() && (frontRightMotor.isBusy() || frontLeftMotor.isBusy() || backRightMotor.isBusy() || backLeftMotor.isBusy())) {
-//            telemetry.addData("FR Position", frontRightMotor.getCurrentPosition());
-//            telemetry.addData("FL Position", frontLeftMotor.getCurrentPosition());
-//            telemetry.addData("BR Position", backRightMotor.getCurrentPosition());
-//            telemetry.addData("BL Position", backLeftMotor.getCurrentPosition());
-//            telemetry.update();
-//        }
-//        frontRightMotor.setPower(0);
-//        frontLeftMotor.setPower(0);
-//        backRightMotor.setPower(0);
-//        backLeftMotor.setPower(0);
-//        frontLeftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-//        frontRightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-//        backLeftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-//        backRightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-//    }
-//
+    public void backward(double inches, double power) {
+        robot.setRunMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        setTargetPosition(inches, -1, -1, -1, -1);
+        robot.setRunMode(DcMotor.RunMode.RUN_TO_POSITION);
+        setPower(power);
+        while (opmode.opModeIsActive() && isDrivetrainBusy()) {
+            showCurrentPosition();
+            opmode.telemetry.update();
+        }
+        setPower(0);
+        robot.setRunMode(DcMotor.RunMode.RUN_USING_ENCODER);
+    }
+
+    public void right(double inches, double power) {
+        robot.setRunMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        setTargetPosition(inches, -1, 1, 1, -1);
+        robot.setRunMode(DcMotor.RunMode.RUN_TO_POSITION);
+        setPower(power);
+        while (opmode.opModeIsActive() && isDrivetrainBusy()) {
+            showCurrentPosition();
+            opmode.telemetry.update();
+        }
+        setPower(0);
+        robot.setRunMode(DcMotor.RunMode.RUN_USING_ENCODER);
+    }
+
+    public void left(double inches, double power) {
+        robot.setRunMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        setTargetPosition(inches, 1, -1, -1, 1);
+        robot.setRunMode(DcMotor.RunMode.RUN_TO_POSITION);
+        setPower(power);
+        while (opmode.opModeIsActive() && isDrivetrainBusy()) {
+            showCurrentPosition();
+            opmode.telemetry.update();
+        }
+        setPower(0);
+        robot.setRunMode(DcMotor.RunMode.RUN_USING_ENCODER);
+    }
+    public void turn_right(double degrees, double power) {
+        robot.setRunMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        double inchesToTravel = (degrees / 360.0) * constant.turningCircumference;
+        setTargetPosition(inchesToTravel, -1, 1, -1, 1);
+        robot.setRunMode(DcMotor.RunMode.RUN_TO_POSITION);
+        setPower(power);
+        while (opmode.opModeIsActive() && isDrivetrainBusy()) {
+            showCurrentPosition();
+            opmode.telemetry.update();
+        }
+        setPower(0);
+        robot.setRunMode(DcMotor.RunMode.RUN_USING_ENCODER);
+    }
+
+    public void turn_left(double degrees, double power) {
+        robot.setRunMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        double inchesToTravel = (degrees / 360.0) * constant.turningCircumference;
+        setTargetPosition(inchesToTravel, 1, -1, 1, -1);
+        robot.setRunMode(DcMotor.RunMode.RUN_TO_POSITION);
+        setPower(power);
+        while (opmode.opModeIsActive() && isDrivetrainBusy()) {
+            showCurrentPosition();
+            opmode.telemetry.update();
+        }
+        setPower(0);
+        robot.setRunMode(DcMotor.RunMode.RUN_USING_ENCODER);
+    }
 
 }
