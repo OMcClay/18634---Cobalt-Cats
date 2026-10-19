@@ -38,7 +38,7 @@ public class fieldCent extends LinearOpMode {
             double rx = gamepad1.right_stick_x;
             if (gamepad1.start) imu.resetYaw();
             double heading = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
-            telemetry.addData("Heading(in degrees): ", imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES));
+            telemetry.addData("Heading(degrees): ", imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES));
             double rotX = x * Math.cos(-heading) - y * Math.sin(-heading);
             double rotY = x * Math.sin(-heading) + y * Math.cos(-heading);
             rotX *= 1.1;
