@@ -40,7 +40,7 @@ public class fieldCent extends LinearOpMode {
             if (gamepad1.start) imu.resetYaw();
             double heading = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
             if (gamepad1.right_bumper) {
-                if (speed == 1) speed = 0.25;
+                if (speed == 1) speed = 0.45;
                 else speed = 1;
             }
             telemetry.addData("Heading(degrees): ", imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES));
