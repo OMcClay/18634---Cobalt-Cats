@@ -17,7 +17,7 @@ import org.firstinspires.ftc.vision.apriltag.AprilTagClusterDetection;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 
-@TeleOp(name = "fieldCentricAttempt1")
+@TeleOp(name = "fieldCentricAttempt2")
 public class fieldCentAprilTag extends LinearOpMode {
     private DcMotor frontLeft;
     private DcMotor frontRight;

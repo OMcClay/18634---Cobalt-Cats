@@ -18,6 +18,7 @@ public class fieldCent extends LinearOpMode {
     private DcMotor backLeft;
     private DcMotor backRight;
     private IMU imu;
+    double speed = 1;
 
     @Override
     public void runOpMode() {
@@ -38,6 +39,10 @@ public class fieldCent extends LinearOpMode {
             double rx = gamepad1.right_stick_x;
             if (gamepad1.start) imu.resetYaw();
             double heading = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
+            if (gamepad1.right_bumper) {
+                if (speed == 1) speed = 0.25;
+                else speed = 1;
+            }
             telemetry.addData("Heading(degrees): ", imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES));
             double rotX = x * Math.cos(-heading) - y * Math.sin(-heading);
             double rotY = x * Math.sin(-heading) + y * Math.cos(-heading);
