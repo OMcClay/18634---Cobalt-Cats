@@ -44,6 +44,7 @@ public class fieldCent extends LinearOpMode {
                 else speed = 1;
             }
             telemetry.addData("Heading(degrees): ", imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES));
+            telemetry.addData("Speed", speed);
             double rotX = x * Math.cos(-heading) - y * Math.sin(-heading);
             double rotY = x * Math.sin(-heading) + y * Math.cos(-heading);
             rotX *= 1.1;
@@ -52,10 +53,10 @@ public class fieldCent extends LinearOpMode {
             double backLeftPower = -(rotY - rotX + rx) / denominator;
             double frontRightPower = -(rotY - rotX - rx) / denominator;
             double backRightPower = -(rotY + rotX - rx) / denominator;
-            frontLeft.setPower(frontLeftPower);
-            backLeft.setPower(backLeftPower);
-            frontRight.setPower(frontRightPower);
-            backRight.setPower(backRightPower);
+            frontLeft.setPower(frontLeftPower*speed);
+            backLeft.setPower(backLeftPower*speed);
+            frontRight.setPower(frontRightPower*speed);
+            backRight.setPower(backRightPower*speed);
             telemetry.update();
         }
     }
