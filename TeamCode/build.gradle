@@ -3,7 +3,7 @@ buildscript {
         mavenCentral()
         google()
         maven {
-            url "https://repo.dairy.foundation/releases"
+            url = "https://repo.dairy.foundation/releases"
         }
     }
     dependencies {
@@ -43,5 +43,4 @@ android {
 dependencies {
     implementation project(':FtcRobotController')
     implementation("dev.frozenmilk.sinister:Sloth:0.3.2")
-
 }

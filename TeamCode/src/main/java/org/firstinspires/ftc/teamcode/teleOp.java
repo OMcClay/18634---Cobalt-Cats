@@ -1,10 +1,14 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.Servo;
+
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 
 @TeleOp (name = "TeleOp")
 public class teleOp extends LinearOpMode {
@@ -16,8 +20,10 @@ public class teleOp extends LinearOpMode {
     DcMotor transfer;
     DcMotorEx flyWheel;
     Servo gate;
+    IMU imu;
 
     double intakeSpeed = 0.75;
+    double driveSpeed = 1;
     boolean flyWheelStatus = false;
 
 
@@ -33,11 +39,13 @@ public class teleOp extends LinearOpMode {
         flyWheel = hardwareMap.get(DcMotorEx.class, "flyWheel");
         br.setDirection(DcMotor.Direction.REVERSE);
         intake.setDirection(DcMotor.Direction.REVERSE);
-
+        imu = hardwareMap.get(IMU.class, "imu");
+        RevHubOrientationOnRobot orientationOnRobot = new RevHubOrientationOnRobot(RevHubOrientationOnRobot.LogoFacingDirection.UP, RevHubOrientationOnRobot.UsbFacingDirection.FORWARD);
+        imu.initialize(new IMU.Parameters(orientationOnRobot));
 
         waitForStart();
         while (opModeIsActive()) {
-            botCentricDrive();
+            fieldCentricDrive();
             operator();
         }
     }
@@ -50,7 +58,37 @@ public class teleOp extends LinearOpMode {
     }
 
     public void fieldCentricDrive() {
+        double y = -gamepad1.left_stick_y;
+        double x = gamepad1.left_stick_x;
+        double pivot = gamepad1.right_stick_x;
 
+        if (gamepad1.start) {
+            imu.resetYaw();
+        }
+
+        double heading = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
+        if (gamepad1.right_bumper) {
+            if (driveSpeed == 1) {
+                driveSpeed = 0.45;
+            }
+            else {
+                driveSpeed = 1;
+            }
+        }
+
+        double rotX = x * Math.cos(-heading) - y * Math.sin(-heading);
+        double rotY = x * Math.sin(-heading) + y * Math.cos(-heading);
+        rotX *= 1.1;
+        double denominator = Math.max(Math.abs(rotY) + Math.abs(rotX) + Math.abs(pivot), 1.0);
+        double frontLeftPower = -(rotY + rotX + pivot) / denominator;
+        double backLeftPower = -(rotY - rotX + pivot) / denominator;
+        double frontRightPower = -(rotY - rotX - pivot) / denominator;
+        double backRightPower = -(rotY + rotX - pivot) / denominator;
+        fl.setPower(frontLeftPower * driveSpeed);
+        bl.setPower(backLeftPower * driveSpeed);
+        fr.setPower(frontRightPower * driveSpeed);
+        br.setPower(backRightPower * driveSpeed);
+        telemetry.update();
     }
 
     public void operator() {
@@ -91,6 +129,7 @@ public class teleOp extends LinearOpMode {
 //            if (i >= 1) {
 //                i = 0;
 //            }
+//            sleep(500);
 //        }
 
         telemetry.addData("gatePos", gate.getPosition());
