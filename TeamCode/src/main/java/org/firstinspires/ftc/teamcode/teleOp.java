@@ -7,6 +7,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 
@@ -26,6 +27,7 @@ public class teleOp extends LinearOpMode {
     double driveSpeed = 1;
     boolean flyWheelStatus = false;
 
+    ElapsedTime timerS = new ElapsedTime();
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -42,6 +44,7 @@ public class teleOp extends LinearOpMode {
         imu = hardwareMap.get(IMU.class, "imu");
         RevHubOrientationOnRobot orientationOnRobot = new RevHubOrientationOnRobot(RevHubOrientationOnRobot.LogoFacingDirection.UP, RevHubOrientationOnRobot.UsbFacingDirection.FORWARD);
         imu.initialize(new IMU.Parameters(orientationOnRobot));
+        timerS.reset();
 
         waitForStart();
         while (opModeIsActive()) {
@@ -67,7 +70,8 @@ public class teleOp extends LinearOpMode {
         }
 
         double heading = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
-        if (gamepad1.right_bumper) {
+        if (gamepad1.right_bumper && timerS.milliseconds() >= 500) {
+            timerS.reset();
             if (driveSpeed == 1) {
                 driveSpeed = 0.45;
             }
