@@ -135,20 +135,20 @@ public class autoFunctions {
         setPower(0);
         setRunMode(DcMotor.RunMode.RUN_USING_ENCODER);
     }
-//
-//    public void turn_left(double degrees, double power) {
-//        robot.setRunMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-//        double inchesToTravel = (degrees / 360.0) * constant.turningCircumference;
-//        setTargetPosition(inchesToTravel, 1, -1, 1, -1);
-//        robot.setRunMode(DcMotor.RunMode.RUN_TO_POSITION);
-//        setPower(power);
-//        while (opmode.opModeIsActive() && isDrivetrainBusy()) {
-//            showCurrentPosition();
-//            opmode.telemetry.update();
-//        }
-//        setPower(0);
-//        robot.setRunMode(DcMotor.RunMode.RUN_USING_ENCODER);
-//    }
+
+    public void turn_left(double degrees, double power) {
+        setRunMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        double inchesToTravel = (degrees / 360.0) * constant.turningCircumference;
+        setTargetPosition(inchesToTravel, 1, -1, 1, -1);
+        setRunMode(DcMotor.RunMode.RUN_TO_POSITION);
+        setPower(power);
+        while (opmode.opModeIsActive() && isDrivetrainBusy()) {
+            showCurrentPosition();
+            opmode.telemetry.update();
+        }
+        setPower(0);
+        setRunMode(DcMotor.RunMode.RUN_USING_ENCODER);
+    }
 
     }
 
