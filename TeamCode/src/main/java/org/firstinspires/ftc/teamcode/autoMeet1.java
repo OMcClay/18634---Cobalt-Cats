@@ -17,7 +17,7 @@ public class autoMeet1 extends LinearOpMode{
 
         if (opModeIsActive()) {
 
-            autoFunc.forward(22.0, set_power);
+            autoFunc.forward(22.0, set_power); //not sure
             //SHOOT
             autoFunc.right(45.0, set_power);
         }

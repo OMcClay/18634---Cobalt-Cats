@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
@@ -8,17 +9,29 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 public class drivetrain {
 
 
-    public DcMotor frontRightMotor = null;
-    public DcMotor frontLeftMotor = null;
-    public DcMotor backRightMotor = null;
-    public DcMotor backLeftMotor = null;
+    private DcMotor frontRightMotor = null;
+    private DcMotor frontLeftMotor = null;
+    private DcMotor backRightMotor = null;
+    private DcMotor backLeftMotor = null;
+    private DcMotor intake;
+    private DcMotor transfer;
+    private DcMotor flyWheel;
+    private LinearOpMode opmode;
 
-    // Hardware Map reference
-    private HardwareMap hwMap = null;
 
-    public drivetrain() {
-        // Constructor left empty
+    public drivetrain(LinearOpMode opmode) {
+        this.opmode = opmode;
+        HardwareMap hardwareMap = opmode.hardwareMap;
+        frontRightMotor = hardwareMap.get(DcMotor.class, "frontRight");
+        frontLeftMotor = hardwareMap.get(DcMotor.class, "frontLeft");
+        backRightMotor = hardwareMap.get(DcMotor.class, "backRight");
+        backLeftMotor = hardwareMap.get(DcMotor.class, "backLeft");
+
+        // Reverse your left side motor
+        backRightMotor.setDirection(DcMotor.Direction.REVERSE);
+        // Note: You will likely need to reverse backLeftMotor here too!
     }
+
 
 
 //    Drivetrain functions
@@ -40,34 +53,33 @@ public class drivetrain {
     }
 
     //  initialize
-    public void init(HardwareMap ahwMap) {
-        hwMap = ahwMap;
 
-        // Retrieve motors from Hardware Map configuration
-        frontRightMotor = hwMap.get(DcMotor.class, "frontRight");
-        frontLeftMotor  = hwMap.get(DcMotor.class, "frontLeft");
-        backRightMotor  = hwMap.get(DcMotor.class, "backRight");
-        backLeftMotor   = hwMap.get(DcMotor.class, "backLeft");
 
-        // Set motor directions
-        frontLeftMotor.setDirection(DcMotor.Direction.REVERSE);
+//    public void init(HardwareMap ahwMap) {
+//        hwMap = ahwMap;
+//
+//        // Retrieve motors from Hardware Map configuration
+//        frontRightMotor = hwMap.get(DcMotor.class, "frontRight");
+//        frontLeftMotor  = hwMap.get(DcMotor.class, "frontLeft");
+//        backRightMotor  = hwMap.get(DcMotor.class, "backRight");
+//        backLeftMotor   = hwMap.get(DcMotor.class, "backLeft");
+//
+//        // Set motor directions
+//        frontLeftMotor.setDirection(DcMotor.Direction.REVERSE);
+//
+//        // Set brake behavior
+//        frontRightMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+//        frontLeftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+//        backRightMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+//        backLeftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+//
+//        // Set initial run modes
+//        setRunMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+//        setRunMode(DcMotor.RunMode.RUN_USING_ENCODER);
+//
+//        // Stop all motors
+//        setDrivePower(0, 0, 0, 0);
+//    }
 
-        // Set brake behavior
-        frontRightMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        frontLeftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        backRightMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        backLeftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-
-        // Set initial run modes
-        setRunMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        setRunMode(DcMotor.RunMode.RUN_USING_ENCODER);
-
-        // Stop all motors
-        setDrivePower(0, 0, 0, 0);
-    }
-
-//Trying to put fieldcentric drive here:
-//    public void setDrivePower(double )
-}
 
 
