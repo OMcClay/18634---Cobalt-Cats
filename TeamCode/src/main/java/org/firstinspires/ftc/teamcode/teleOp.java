@@ -133,6 +133,7 @@ public class teleOp extends LinearOpMode {
             else if (gamepad2.right_bumper && gatePos == "closed") {
                 Operator.gate.setPosition(closeGate);
                 gatePos = "open";
+            }
         }
 //        for (int i = 0; i<=1; i += 0.1) {
 //            gate.setPosition(i);
