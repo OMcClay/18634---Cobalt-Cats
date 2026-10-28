@@ -14,8 +14,9 @@ public class testIntakeShooter extends LinearOpMode {
     private DcMotor intake;
     private DcMotor transfer;
     private DcMotor flyWheel;
-    @Override
     drivetrain drivetrain;
+    @Override
+
     public void runOpMode() throws InterruptedException {
         drivetrain = new drivetrain(this);
 

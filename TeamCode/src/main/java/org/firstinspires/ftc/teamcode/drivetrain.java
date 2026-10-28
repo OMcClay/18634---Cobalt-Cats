@@ -33,7 +33,6 @@ public class drivetrain {
     }
 
 
-
 //    Drivetrain functions
 
     //Sets runMode for motors
@@ -51,6 +50,7 @@ public class drivetrain {
         backLeftMotor.setPower(bl);
         backRightMotor.setPower(br);
     }
+}
 
     //  initialize
 
