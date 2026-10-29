@@ -1,15 +1,10 @@
 package org.firstinspires.ftc.teamcode;
 
-//import com.acmerobotics.dashboard.FtcDashboard;
-//import com.acmerobotics.dashboard.config.Config;
-//import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
-
+import com.acmerobotics.dashboard.FtcDashboard;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
-//package org.firstinspires.ftc.teamcode;
-
 
 
 public class operator {
@@ -17,7 +12,7 @@ public class operator {
     DcMotor transfer;
     DcMotorEx flyWheel;
     Servo gate;
-//    FtcDashboard dashboard;
+    FtcDashboard dashboard;
 
     public void initOperator(HardwareMap hardwareMap) {
         gate = hardwareMap.get(Servo.class, "gate");
@@ -27,13 +22,14 @@ public class operator {
 
         intake.setDirection(DcMotor.Direction.REVERSE);
     }
-//
+
 //    @Config
-//    public void shooterPIDFInit {
+//    public void shooterPIDFInit (){
 //        public static final PIDFCoefficients shooterPIDF = new PIDFCoefficients(0, 0, 0, 0);
 //        public static int TARGET_TICKS = 800;
 //        dashboard = FtcDashboard.getInstance();
 //        telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
+//        telemetry.addData()
 //    }
 
 }
