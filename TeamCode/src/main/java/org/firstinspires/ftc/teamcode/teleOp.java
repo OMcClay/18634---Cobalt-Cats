@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.acmerobotics.dashboard.FtcDashboard;
+import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -8,21 +10,17 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 
 @TeleOp (name = "TeleOp")
 public class teleOp extends LinearOpMode {
-//    DcMotor fl;
-//    DcMotor fr;
-//    DcMotor bl;
-//    DcMotor br;
     drivetrain driveTrain = new drivetrain();
-    operator Operator = new operator();
-//    DcMotor intake;
-//    DcMotor transfer;
-//    DcMotorEx flyWheel;
-//    Servo gate;
-//    IMU imu;
+    initOperator Operator = new initOperator();
 
     double intakeSpeed = 0.75;
     double driveSpeed = 1;
+    String flowerStatus = "down";
     boolean flyWheelStatus = false;
+    ElapsedTime timer = new ElapsedTime();
+    double flyWheelTime;
+    double gateTime;
+    String gatePos = "closed";
 
 
     @Override
@@ -30,44 +28,22 @@ public class teleOp extends LinearOpMode {
 
         driveTrain.initDrive(hardwareMap);
         Operator.initOperator(hardwareMap);
-//        fl = hardwareMap.get(DcMotor.class, "frontLeft");
-//        fr = hardwareMap.get(DcMotor.class, "frontRight");
-//        bl = hardwareMap.get(DcMotor.class, "backLeft");
-//        br = hardwareMap.get(DcMotor.class, "backRight");
-//        gate = hardwareMap.get(Servo.class, "gate");
-//        intake = hardwareMap.get(DcMotor.class, "intake");
-//        transfer = hardwareMap.get(DcMotor.class, "transfer");
-//        flyWheel = hardwareMap.get(DcMotorEx.class, "flyWheel");
-//        br.setDirection(DcMotor.Direction.REVERSE);
-//        intake.setDirection(DcMotor.Direction.REVERSE);
-//        imu = hardwareMap.get(IMU.class, "imu");
-//        RevHubOrientationOnRobot orientationOnRobot = new RevHubOrientationOnRobot(RevHubOrientationOnRobot.LogoFacingDirection.UP, RevHubOrientationOnRobot.UsbFacingDirection.FORWARD);
-//        imu.initialize(new IMU.Parameters(orientationOnRobot));
+
 
         waitForStart();
+        timer.reset();
         while (opModeIsActive()) {
-            fieldCentricDrive();
+            driver();
             operator();
+            telemetry.update();
         }
     }
 
-    public void botCentricDrive(){
-        driveTrain.frontLeftMotor.setPower(gamepad1.left_stick_y + gamepad1.left_stick_x);
-        driveTrain.frontRightMotor.setPower(gamepad1.left_stick_y - gamepad1.left_stick_x);
-        driveTrain.backLeftMotor.setPower(gamepad1.left_stick_y - gamepad1.left_stick_x);
-        driveTrain.backRightMotor.setPower(gamepad1.left_stick_y - gamepad1.left_stick_x);
-    }
+    public void driver() {
+        // botCentricDrive();
+        fieldCentricDrive();
 
-    public void fieldCentricDrive() {
-        double y = -gamepad1.left_stick_y;
-        double x = gamepad1.left_stick_x;
-        double pivot = gamepad1.right_stick_x;
-
-        if (gamepad1.start) {
-            driveTrain.imu.resetYaw();
-        }
-
-        double heading = driveTrain.imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
+        // Drive Speed
         if (gamepad1.right_bumper) {
             if (driveSpeed == 1) {
                 driveSpeed = 0.45;
@@ -77,6 +53,39 @@ public class teleOp extends LinearOpMode {
             }
         }
 
+        //Flower servos down/up
+        if (gamepad1.left_bumper) {
+            if (flowerStatus == "down") {
+                Operator.leftFlower.setPosition(Operator.leftFlowerUp);
+                Operator.rightFlower.setPosition(Operator.rightFlowerUp);
+                flowerStatus = "up";
+            } else if (flowerStatus == "up") {
+                Operator.leftFlower.setPosition(Operator.leftFlowerDown);
+                Operator.rightFlower.setPosition(Operator.rightFlowerDown);
+                flowerStatus = "down";
+            }
+        }
+
+    }
+    public void botCentricDrive(){
+        driveTrain.frontLeftMotor.setPower((gamepad1.left_stick_y + gamepad1.left_stick_x) * driveSpeed);
+        driveTrain.frontRightMotor.setPower((gamepad1.left_stick_y - gamepad1.left_stick_x) * driveSpeed);
+        driveTrain.backLeftMotor.setPower((gamepad1.left_stick_y - gamepad1.left_stick_x) * driveSpeed);
+        driveTrain.backRightMotor.setPower((gamepad1.left_stick_y - gamepad1.left_stick_x) * driveSpeed);
+    }
+
+    public void fieldCentricDrive() {
+        double y = -gamepad1.left_stick_y;
+        double x = gamepad1.left_stick_x;
+        double pivot = gamepad1.right_stick_x;
+
+        //imu
+        if (gamepad1.start) {
+            driveTrain.imu.resetYaw();
+        }
+        double heading = driveTrain.imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
+
+        //fc equations
         double rotX = x * Math.cos(-heading) - y * Math.sin(-heading);
         double rotY = x * Math.sin(-heading) + y * Math.cos(-heading);
         rotX *= 1.1;
@@ -85,67 +94,83 @@ public class teleOp extends LinearOpMode {
         double backLeftPower = -(rotY - rotX + pivot) / denominator;
         double frontRightPower = -(rotY - rotX - pivot) / denominator;
         double backRightPower = -(rotY + rotX - pivot) / denominator;
+
+        //
         driveTrain.frontLeftMotor.setPower(frontLeftPower * driveSpeed);
         driveTrain.backLeftMotor.setPower(backLeftPower * driveSpeed);
         driveTrain.frontRightMotor.setPower(frontRightPower * driveSpeed);
         driveTrain.backRightMotor.setPower(backRightPower * driveSpeed);
-        telemetry.update();
     }
 
     public void operator() {
-        final int closeGate = 0;
-        final double openGate = 0.3;
-        String gatePos = "Closed";
-        ElapsedTime gateTime = new ElapsedTime();
-
-        if (gamepad2.left_stick_y != 0){
+        //Intake & transfer speed
+        if (!(gamepad2.left_stick_y > 0.1) || !(gamepad2.left_stick_y < 0.1)){
             intakeSpeed = (0.75 * (-gamepad2.left_stick_y));
         }
         else {
             intakeSpeed = (0.75);
         }
 
-
-        if (gamepad2.triangle && !flyWheelStatus) {
-            Operator.flyWheel.setPower(0.75);
-            flyWheelStatus = true;
-            gateTime.reset();
-        } else if (gamepad2.triangle && flyWheelStatus) {
-            Operator.flyWheel.setPower(0);
-            flyWheelStatus = false;
-            gateTime.reset();
-        }
-
-//        if (gamepad2.rightBumperWasPressed() && gate.getPosition() == closeGate) {
-//            gate.setPosition(openGate);
-//        }
-//        else if (gamepad2.rightBumperWasPressed() && gate.getPosition() == openGate) {
-//            gate.setPosition(closeGate);
-//        }
-
         Operator.intake.setPower(gamepad2.left_trigger * intakeSpeed);
         Operator.transfer.setPower(gamepad2.left_trigger * intakeSpeed);
-        if (gateTime.seconds() > 0.5) {
-            if (gamepad2.right_bumper && Operator.gate.getPosition() == closeGate) {
-                Operator.gate.setPosition(openGate);
+
+        // Gate open/close
+        if (gateTime >= timer.seconds() - 0.3) {
+            if (gamepad2.right_bumper && gatePos == "open") {
+                Operator.gate.setPosition(Operator.openGate);
                 gatePos = "closed";
-           }
+                gateTime = timer.seconds();
+            }
             else if (gamepad2.right_bumper && gatePos == "closed") {
-                Operator.gate.setPosition(closeGate);
+                Operator.gate.setPosition(Operator.closeGate);
                 gatePos = "open";
+                gateTime = timer.seconds();
             }
         }
-//        for (int i = 0; i<=1; i += 0.1) {
-//            gate.setPosition(i);
-//            if (i >= 1) {
-//                i = 0;
-//            }
-//            sleep(500);
-//        }
+
+        //Fly Wheel on/off
+        if (flyWheelTime <= timer.seconds() - 0.3) {
+            if (gamepad2.triangle && !flyWheelStatus) {
+                Operator.flyWheel.setPower(0.75);
+                flyWheelStatus = true;
+                flyWheelTime = timer.seconds();
+            } else if (gamepad2.triangle && flyWheelStatus) {
+                Operator.flyWheel.setPower(0);
+                flyWheelStatus = false;
+                flyWheelTime = timer.seconds();
+            }
+        }
 
         telemetry.addData("gatePos", Operator.gate.getPosition());
         telemetry.addData("velocity", Operator.flyWheel.getVelocity());
         telemetry.addData("flyWheel", flyWheelStatus);
         telemetry.update();
+    }
+
+    public void shooterSpeed() {
+        MultipleTelemetry tel = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
+
+        ElapsedTime shooterTime = new ElapsedTime();
+        double lastError = 0;
+        double integralSum = 0;
+        double shooterTimeSeconds = shooterTime.seconds();
+        shooterTime.reset();
+
+        int currentPos = Operator.flyWheel.getCurrentPosition();
+        double error = Operator.TARGET_TICKS - currentPos;
+
+        integralSum = Math.max(-1, Math.min(1, integralSum + error * shooterTimeSeconds));
+        double derivative = (error - lastError) / shooterTimeSeconds;
+        lastError = error;
+
+        double power = Operator.shooterPIDF.p * error + Operator.shooterPIDF.i * integralSum + Operator.shooterPIDF.d * derivative + Operator.shooterPIDF.f;
+
+        Operator.flyWheel.setPower(Math.max(-1, Math.min(1, power)));
+
+        tel.addData("Target", Operator.TARGET_TICKS);
+        tel.addData("Position", currentPos);
+        tel.addData("Error", error);
+        tel.addData("Power", power);
+        tel.update();
     }
 }
