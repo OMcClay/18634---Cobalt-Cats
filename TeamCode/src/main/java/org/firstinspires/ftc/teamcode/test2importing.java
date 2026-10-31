@@ -12,21 +12,31 @@ public class test2importing extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
         autoFunc = new autoFunctions(this);
 
-        double set_power = 0.5;
+        double set_power = 0.7;
 
         waitForStart();
 
         if (opModeIsActive()) {
-            autoFunc.forward(5.0, set_power);
-            sleep(2000);
-            autoFunc.backward(5.0, set_power);
-            sleep(2000);
-            autoFunc.right(5.0, set_power);
-            sleep(2000);
-            autoFunc.left(5.0, set_power);
-            sleep(2000);
+
+            autoFunc.forward(22.0, set_power);
+            //SHOOT
+            autoFunc.left(36.0, set_power);
+            autoFunc.forward(26.0, set_power);
             autoFunc.turn_right(90.0, set_power);
-            sleep(2000);
+            autoFunc.backward(20.0, set_power);
+            //INTAKE from flower
+            autoFunc.forward(20.0, set_power);
+            autoFunc.left(74.0, set_power);
+            autoFunc.forward(36.0, set_power);
+            autoFunc.turn_right(90.0, set_power);
+            //SHOOT
+            autoFunc.right(12.0, set_power);
+            autoFunc.backward(18.0, set_power);
+            autoFunc.forward(18.0, set_power);
+            autoFunc.left(12.0, set_power);
+            //SHOOT
+            autoFunc.right(60.0, set_power);
+            autoFunc.forward(12.0, set_power);
 
         }
     }
