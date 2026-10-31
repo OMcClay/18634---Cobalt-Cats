@@ -26,9 +26,13 @@ public class autoFunctions {
         frontLeftMotor = hardwareMap.get(DcMotor.class, "frontLeft");
         backRightMotor = hardwareMap.get(DcMotor.class, "backRight");
         backLeftMotor = hardwareMap.get(DcMotor.class, "backLeft");
+        intake = hardwareMap.get(DcMotor.class, "intake");
+        transfer = hardwareMap.get(DcMotor.class, "transfer");
+        flyWheel = hardwareMap.get(DcMotor.class, "flyWheel");
 
         // Reverse your left side motor
         backRightMotor.setDirection(DcMotor.Direction.REVERSE);
+        intake.setDirection(DcMotor.Direction.REVERSE);
         // Note: You will likely need to reverse backLeftMotor here too!
     }
 //    drivetrain robot = new drivetrain();
@@ -158,13 +162,12 @@ public class autoFunctions {
         intake.setPower(0.5);
 
         runTime.reset();
+        flyWheel.setPower(0.9);
 
-        flyWheel.setPower(0.8);
-
-        while (opmode.opModeIsActive() && (runTime.seconds() < 2.5)) {
+        while (opmode.opModeIsActive() && (runTime.seconds() < 3.5)) {
             opmode.telemetry.addData("status", "shooting");
-            transfer.setPower(0.5);
-            opmode.telemetry.addData("Elapsed Time", "%.2f / 2.50 s", runTime.seconds());
+            transfer.setPower(0.9);
+            opmode.telemetry.addData("Elapsed Time", "%.2f / 3.50 s", runTime.seconds());
             opmode.telemetry.update();
         }
         flyWheel.setPower(0);

@@ -1,10 +1,10 @@
 package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.hardware.DcMotor;
+
 @Autonomous(name = "autoMeet1", group = "Autonomous")
 
-public class autoMeet1 extends LinearOpMode{
+public class autoMeet1Basic extends LinearOpMode{
     autoFunctions autoFunc;
 
     @Override
@@ -18,7 +18,7 @@ public class autoMeet1 extends LinearOpMode{
         if (opModeIsActive()) {
 
             autoFunc.forward(22.0, set_power); //not sure
-            //SHOOT
+            autoFunc.basicShoot();
             autoFunc.right(45.0, set_power);
         }
     }

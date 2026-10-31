@@ -8,18 +8,22 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 @TeleOp(name = "testShooter", group = "TeleOp")
 public class testIntakeShooter extends LinearOpMode {
-    private DcMotor frontRightMotor = null;
-    private DcMotor frontLeftMotor = null;
-    private DcMotor backRightMotor = null;
-    private DcMotor backLeftMotor = null;
+
+    // 1. Declare variables at the top (without assigning them yet)
     private DcMotor intake;
     private DcMotor transfer;
     private DcMotor flyWheel;
     private ElapsedTime runTime = new ElapsedTime();
     autoFunctions autoFunc;
-    @Override
 
+    @Override
     public void runOpMode() throws InterruptedException {
+
+        // 2. Initialize them here, inside runOpMode, where hardwareMap is fully active
+        intake = hardwareMap.get(DcMotor.class, "intake");
+        transfer = hardwareMap.get(DcMotor.class, "transfer");
+        flyWheel = hardwareMap.get(DcMotor.class, "flyWheel");
+        intake.setDirection(DcMotor.Direction.REVERSE);
         autoFunc = new autoFunctions(this);
 
         waitForStart();
@@ -27,31 +31,24 @@ public class testIntakeShooter extends LinearOpMode {
         if (opModeIsActive()) {
 
             intake.setPower(0.5);
-
             runTime.reset();
-
-            flyWheel.setPower(0.8);
+            flyWheel.setPower(0.9);
 
             while (opModeIsActive() && (runTime.seconds() < 3.5)) {
                 telemetry.addData("status", "shooting");
                 transfer.setPower(0.5);
-                telemetry.addData("Elapsed Time", "%.2f / 2.50 s", runTime.seconds());
+                // Tip: Updated your string formatting below to match your actual 3.5s limit
+                telemetry.addData("Elapsed Time", "%.2f / 3.50 s", runTime.seconds());
                 telemetry.update();
             }
+
             flyWheel.setPower(0);
             transfer.setPower(0);
             intake.setPower(0);
 
             sleep(2000);
 
-            //Function basicShoot
             autoFunc.basicShoot();
-
-
-
-
-
-
         }
     }
 }
