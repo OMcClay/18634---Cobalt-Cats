@@ -159,7 +159,7 @@ public class autoFunctions {
 
         runTime.reset();
 
-        flyWheel.setPower(0.5);
+        flyWheel.setPower(0.8);
 
         while (opmode.opModeIsActive() && (runTime.seconds() < 2.5)) {
             opmode.telemetry.addData("status", "shooting");

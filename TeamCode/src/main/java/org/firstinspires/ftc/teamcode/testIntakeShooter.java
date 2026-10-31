@@ -30,7 +30,7 @@ public class testIntakeShooter extends LinearOpMode {
 
             runTime.reset();
 
-            flyWheel.setPower(0.5);
+            flyWheel.setPower(0.8);
 
             while (opModeIsActive() && (runTime.seconds() < 3.5)) {
                 telemetry.addData("status", "shooting");
