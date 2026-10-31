@@ -13,21 +13,24 @@ import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 @TeleOp (name = "tunePIDF")
 public class tunePIDF extends LinearOpMode {
     DcMotorEx testMotor;
-    public static double highVelocity = 1500;
+    public static double highVelocity = 1300;
     double lowVelocity = 900;
     public static double curTargetVelocity = highVelocity;
-    public static double tuneP = 0;
+    public static double tuneP = 90;
     public static double tuneI = 0;
-    public static double tuneD = 0;
-    public static double tuneF = 0;
+    public static double tuneD = 9;
+    public static double tuneF = 14.5;
 
     @Override
     public void runOpMode() throws InterruptedException{
-
         testMotor = hardwareMap.get(DcMotorEx.class, "flyWheel");
         testMotor.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
         testMotor.setDirection(DcMotorEx.Direction.FORWARD);
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
+        DcMotor transfer = hardwareMap.get(DcMotor.class, "transfer");
+        DcMotor intake = hardwareMap.get(DcMotor.class, "intake");
+
+        intake.setDirection(DcMotor.Direction.REVERSE);
         waitForStart();
         while (opModeIsActive()) {
             if(gamepad1.yWasPressed()) {
@@ -37,6 +40,11 @@ public class tunePIDF extends LinearOpMode {
                     curTargetVelocity = highVelocity;
                 }
             }
+
+            transfer.setPower(gamepad1.left_stick_y);
+            intake.setPower(gamepad1.left_stick_y);
+
+
 
 
 

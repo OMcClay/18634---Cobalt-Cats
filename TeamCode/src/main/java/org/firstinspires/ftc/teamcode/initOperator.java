@@ -16,14 +16,17 @@ public class initOperator {
     Servo leftFlower;
     Servo rightFlower;
 
-    public final int leftFlowerDown = 1;
-    public final int leftFlowerUp = 0;
-    public final int rightFlowerDown = 0;
-    public final int rightFlowerUp = 1;
-    public final int closeGate = 0;
+    public final double leftFlowerDown = 0.95;
+    public final double leftFlowerUp = 0;
+    public final double rightFlowerDown = 0.05;
+    public final double rightFlowerUp = 1;
+    public final double closeGate = 0;
     public final double openGate = 0.4;
-    public static PIDFCoefficients shooterPIDF = new PIDFCoefficients(0,0,0,0);
-    public static int TARGET_TICKS = 800;
+    double shootP = 90;
+    double shootI = 0;
+    double shootD = 9;
+    double shootF = 14.5;
+    public PIDFCoefficients shooterPIDF = new PIDFCoefficients(shootP,shootI,shootD,shootF);
 
     public void initOperator(HardwareMap hardwareMap) {
         gate = hardwareMap.get(Servo.class, "gate");

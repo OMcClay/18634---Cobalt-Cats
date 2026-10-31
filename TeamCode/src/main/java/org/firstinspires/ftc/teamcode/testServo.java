@@ -11,8 +11,8 @@ public class testServo extends LinearOpMode{
     public void runOpMode() throws InterruptedException {
         // gate, leftFlower, rightFlower
 //        testServo = hardwareMap.get(Servo.class, "gate");
-//        testServo = hardwareMap.get(Servo.class, "leftFlower");
-        testServo = hardwareMap.get(Servo.class, "rightFlower");
+        testServo = hardwareMap.get(Servo.class, "leftFlower");
+//        testServo = hardwareMap.get(Servo.class, "rightFlower");
         float i = 0f;
 
         waitForStart();

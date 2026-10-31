@@ -23,7 +23,19 @@ public class drivetrain {
         backRightMotor.setDirection(DcMotorEx.Direction.REVERSE);
 
         imu = hardwareMap.get(IMU.class, "imu");
-        RevHubOrientationOnRobot orientationOnRobot = new RevHubOrientationOnRobot(RevHubOrientationOnRobot.LogoFacingDirection.UP, RevHubOrientationOnRobot.UsbFacingDirection.FORWARD);
-        imu.initialize(new IMU.Parameters(orientationOnRobot));
+        imu.initialize(
+                new IMU.Parameters(
+                        new RevHubOrientationOnRobot(
+                                RevHubOrientationOnRobot.LogoFacingDirection.UP,
+                                RevHubOrientationOnRobot.UsbFacingDirection.LEFT
+                        )
+                )
+        );
+
+//        RevHubOrientationOnRobot orientationOnRobot = new RevHubOrientationOnRobot(RevHubOrientationOnRobot.LogoFacingDirection.UP, RevHubOrientationOnRobot.UsbFacingDirection.FORWARD);
+//        imu.initialize(new IMU.Parameters(orientationOnRobot));
+//        IMU.Parameters myIMUparameters;
+
+
     }
 }
