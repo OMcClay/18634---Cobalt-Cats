@@ -1,9 +1,9 @@
 package org.firstinspires.ftc.teamcode;
 
-import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 //NOT DONE
 public class autoFunctions {
@@ -11,6 +11,10 @@ public class autoFunctions {
     private DcMotor frontLeftMotor;
     private DcMotor backRightMotor;
     private DcMotor backLeftMotor;
+    private DcMotor intake;
+    private DcMotor transfer;
+    private DcMotor flyWheel;
+    ElapsedTime runTime = new ElapsedTime();
 
     private LinearOpMode opmode;
     private constants constant = new constants();
@@ -148,6 +152,26 @@ public class autoFunctions {
         }
         setPower(0);
         setRunMode(DcMotor.RunMode.RUN_USING_ENCODER);
+    }
+
+    public void basicShoot(){
+        intake.setPower(0.5);
+
+        runTime.reset();
+
+        flyWheel.setPower(0.5);
+
+        while (opmode.opModeIsActive() && (runTime.seconds() < 2.5)) {
+            opmode.telemetry.addData("status", "shooting");
+            transfer.setPower(0.5);
+            opmode.telemetry.addData("Elapsed Time", "%.2f / 2.50 s", runTime.seconds());
+            opmode.telemetry.update();
+        }
+        flyWheel.setPower(0);
+        transfer.setPower(0);
+        intake.setPower(0);
+
+        opmode.sleep(2000);
     }
 
     }
