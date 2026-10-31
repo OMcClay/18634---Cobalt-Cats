@@ -38,7 +38,7 @@ public class timer extends LinearOpMode {
             telemetry.addData("Test", time);
             telemetry.update();
             testMotor.setPower(PIDControls(reference, testMotor.getCurrentPosition()));
-            telemetry.addData("Current position", testMotor.getCurrentPosition());
+            telemetry.addData("Currente position", testMotor.getCurrentPosition());
         }
     }
 

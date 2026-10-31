@@ -1,16 +1,27 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.acmerobotics.dashboard.FtcDashboard;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.util.ElapsedTime;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 
-//NOT DONE
+
 public class autoFunctions {
     private DcMotor frontRightMotor;
     private DcMotor frontLeftMotor;
     private DcMotor backRightMotor;
     private DcMotor backLeftMotor;
+
+    private DcMotor intake;
+    private DcMotor transfer;
+    private DcMotorEx flyWheel;
+
+    ElapsedTime timer = new ElapsedTime();
+
 
     private LinearOpMode opmode;
     private constants constant = new constants();
@@ -22,14 +33,18 @@ public class autoFunctions {
         frontLeftMotor = hardwareMap.get(DcMotor.class, "frontLeft");
         backRightMotor = hardwareMap.get(DcMotor.class, "backRight");
         backLeftMotor = hardwareMap.get(DcMotor.class, "backLeft");
+        frontRightMotor.setDirection(DcMotor.Direction.REVERSE);
+        frontLeftMotor.setDirection(DcMotor.Direction.REVERSE);
+        backLeftMotor.setDirection(DcMotor.Direction.REVERSE);
 
-        // Reverse your left side motor
-        backRightMotor.setDirection(DcMotor.Direction.REVERSE);
-        // Note: You will likely need to reverse backLeftMotor here too!
+        intake = hardwareMap.get(DcMotor.class, "intake");
+        transfer = hardwareMap.get(DcMotor.class, "transfer");
+        intake.setDirection(DcMotor.Direction.REVERSE);
+
+        flyWheel = hardwareMap.get(DcMotorEx.class, "flyWheel");
+        flyWheel.setVelocityPIDFCoefficients(90, 0, 9, 14.5);
+//        flyWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     }
-//    drivetrain robot = new drivetrain();
-//    constants constant = new constants();
-//    test2importing opmode = new test2importing();
 
     public boolean isDrivetrainBusy() {
         return frontRightMotor.isBusy() ||
@@ -149,6 +164,22 @@ public class autoFunctions {
         setPower(0);
         setRunMode(DcMotor.RunMode.RUN_USING_ENCODER);
     }
+
+    public void shoot(double shoot_v) {
+        flyWheel.setVelocity(shoot_v);
+        opmode.sleep(2500);
+        timer.reset();
+        while (opmode.opModeIsActive() && (timer.seconds()<4)){
+            transfer.setPower(0.5);
+            intake.setPower(0.5);
+            opmode.telemetry.addData("Current position", flyWheel.getCurrentPosition());
+            opmode.telemetry.update();
+        }
+        flyWheel.setVelocity(0);
+        transfer.setPower(0);
+        intake.setPower(0);
+    }
+
 
     }
 
