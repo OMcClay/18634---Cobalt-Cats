@@ -23,7 +23,10 @@ public class testIntakeShooter extends LinearOpMode {
         waitForStart();
 
         if (opModeIsActive()) {
+            flyWheel.setPower(0.5);
             intake.setPower(0.5);
+            transfer.setPower(0.5);
+
 
 
 
