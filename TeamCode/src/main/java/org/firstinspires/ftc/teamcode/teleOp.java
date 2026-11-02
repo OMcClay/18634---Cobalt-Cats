@@ -19,8 +19,7 @@ public class teleOp extends LinearOpMode {
     ElapsedTime timer = new ElapsedTime();
     double flyWheelTime;
     double gateTime;
-    double shootTime;
-    double reverseTime;
+    double lastShootTime;
     String gatePos = "closed";
     YawPitchRollAngles robotOrientation;
 
@@ -104,17 +103,12 @@ public class teleOp extends LinearOpMode {
     public void operator() {
         double targetVelocity = 1300;
         //Intake & transfer speed
-        if (!(gamepad2.left_stick_y > 0.1) || !(gamepad2.left_stick_y < 0.1)){
+        if (!(gamepad2.left_stick_y > 0.1) && !(gamepad2.left_stick_y < 0.1)){
             intakeSpeed = (0.75 * (-gamepad2.left_stick_y));
         }
         else {
             intakeSpeed = (0.75);
         }
-
-        Operator.intake.setPower(gamepad2.left_trigger * intakeSpeed);
-        Operator.transfer.setPower(gamepad2.left_trigger * intakeSpeed);
-        // Gate open/close
-
 
         //Fly Wheel on/off
         if (flyWheelTime <= timer.seconds() - 0.3) {
@@ -155,12 +149,27 @@ public class teleOp extends LinearOpMode {
 //        }
 
         if (gamepad2.square) {
-            if(Operator.gate.getPosition() == Operator.closeGate) {
-                shootTime = timer.seconds();
-                if(gateTime = timer.seconds())
+            if (lastShootTime < timer.seconds() - 1) {
+                Operator.transfer.setPower(-0.25);
+                Operator.intake.setPower(-0.1);
+            } else {
+                Operator.flyWheel.setVelocity(1300);
             }
-            Operator.transfer.setPower(-0.25);
-            Operator.intake.setPower(-0.1);
+
+            if (gatePos == "open" && lastShootTime > timer.seconds() - 1) {
+                if (!(gamepad2.left_trigger > 0)) {
+                    Operator.transfer.setPower(1);
+                    Operator.intake.setPower(1);
+                } else {
+                    Operator.transfer.setPower(gamepad2.left_trigger * intakeSpeed);
+                    Operator.intake.setPower(gamepad2.left_trigger * intakeSpeed);
+                }
+
+            }
+        } else {
+            Operator.intake.setPower(gamepad2.left_trigger * intakeSpeed);
+            Operator.transfer.setPower(gamepad2.left_trigger * intakeSpeed);
+            lastShootTime = timer.seconds();
         }
 
         telemetry.addData("gatePos", Operator.gate.getPosition());
