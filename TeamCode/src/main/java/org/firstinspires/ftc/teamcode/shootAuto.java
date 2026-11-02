@@ -18,24 +18,12 @@ public class shootAuto extends LinearOpMode {
 
         if (opModeIsActive()) {
             robot.operator.gate.setPosition(0.4);
-            autoFunc.forward(100.0, set_power);
-            sleep(2000);
-            autoFunc.backward(100.0, set_power);
-            sleep(2000);
-            autoFunc.right(100, set_power);
-            sleep(2000);
-            autoFunc.left(100.0, set_power);
-            sleep(2000);
+            autoFunc.forward(4.0, set_power);
             autoFunc.shoot(1250);
+            autoFunc.left(36.0, set_power);
+            autoFunc.forward(80.0, set_power);
+            autoFunc.left(27.0, set_power);
 
-
-//            autoFunc.gatey.setPosition(0.4);
-//            autoFunc.forward(4.0, set_power);
-//            autoFunc.shoot(1250);
-//            autoFunc.left(36.0, set_power);
-//            autoFunc.forward(80.0, set_power);
-//            autoFunc.left(27.0, set_power);
-//
 //            autoFunc.left(36.0, set_power);
 //            autoFunc.forward(26.0, set_power);
 //            autoFunc.turn_right(90.0, set_power);
