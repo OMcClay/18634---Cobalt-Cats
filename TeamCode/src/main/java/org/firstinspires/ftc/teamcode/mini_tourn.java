@@ -20,9 +20,9 @@ public class mini_tourn extends LinearOpMode {
             autoFunc.forward(4.0, set_power);
             autoFunc.shoot(1250);
             autoFunc.left(36.0, set_power);
-            autoFunc.forward(86.0, set_power);
+            autoFunc.forward(80.0, set_power);
             autoFunc.left(27.0, set_power);
-
+//
 //            autoFunc.left(36.0, set_power);
 //            autoFunc.forward(26.0, set_power);
 //            autoFunc.turn_right(90.0, set_power);
