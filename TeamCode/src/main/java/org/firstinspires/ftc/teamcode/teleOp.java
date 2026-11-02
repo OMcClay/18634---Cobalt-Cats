@@ -111,21 +111,7 @@ public class teleOp extends LinearOpMode {
         }
 
         //Fly Wheel on/off
-        if (flyWheelTime <= timer.seconds() - 0.3) {
-            if (gamepad2.triangle && !flyWheelStatus) {
-                Operator.flyWheel.setVelocity(1300);
-                flyWheelStatus = true;
-                flyWheelTime = timer.seconds();
-            } else if (gamepad2.triangle && flyWheelStatus) {
-                Operator.flyWheel.setVelocity(0);
-                flyWheelStatus = false;
-                flyWheelTime = timer.seconds();
-            } else if (gamepad2.touchpad) {
-                Operator.flyWheel.setVelocity(900);
-            } else if (gamepad2.share) {
-                Operator.flyWheel.setVelocity(-2100);
-            }
-        }
+
 
         if ((Operator.flyWheel.getVelocity() > (targetVelocity - 100) && Operator.flyWheel.getVelocity() < (targetVelocity + 100) && !(gamepad2.right_bumper)) || (gamepad2.right_bumper && gatePos == "closed")) {
             Operator.gate.setPosition(Operator.openGate);
@@ -157,8 +143,8 @@ public class teleOp extends LinearOpMode {
             }
 
             if (gatePos == "open" && lastShootTime > timer.seconds() - 1) {
-                if (!(gamepad2.left_trigger > 0)) {
-                    Operator.transfer.setPower(1);
+                if (!(gamepad2.left_trigger > 0.1)) {
+                    Operator.transfer.setPower(-1);
                     Operator.intake.setPower(1);
                 } else {
                     Operator.transfer.setPower(gamepad2.left_trigger * intakeSpeed);
@@ -167,6 +153,23 @@ public class teleOp extends LinearOpMode {
 
             }
         } else {
+            if (flyWheelTime <= timer.seconds() - 0.3) {
+                if (gamepad2.triangle && !flyWheelStatus) {
+                    Operator.flyWheel.setVelocity(1300);
+                    flyWheelStatus = true;
+                    flyWheelTime = timer.seconds();
+                } else if (gamepad2.triangle && flyWheelStatus) {
+                    Operator.flyWheel.setVelocity(0);
+                    flyWheelStatus = false;
+                    flyWheelTime = timer.seconds();
+                } else if (gamepad2.touchpad) {
+                    Operator.flyWheel.setVelocity(900);
+                } else if (gamepad2.share) {
+                    Operator.flyWheel.setVelocity(-2100);
+                } else if (gamepad2.b) {
+                    Operator.flyWheel.setVelocity(0);
+                }
+            }
             Operator.intake.setPower(gamepad2.left_trigger * intakeSpeed);
             Operator.transfer.setPower(gamepad2.left_trigger * intakeSpeed);
             lastShootTime = timer.seconds();
