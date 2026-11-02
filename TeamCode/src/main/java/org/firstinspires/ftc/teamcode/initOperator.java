@@ -36,6 +36,7 @@ public class initOperator {
         transfer = hardwareMap.get(DcMotor.class, "transfer");
         flyWheel = hardwareMap.get(DcMotorEx.class, "flyWheel");
 
+        flyWheel.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, shooterPIDF);
         flyWheel.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
 
         intake.setDirection(DcMotor.Direction.REVERSE);

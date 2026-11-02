@@ -101,37 +101,8 @@ public class teleOp extends LinearOpMode {
 
     }
 
-//    public void fieldCentricDrive() {
-//        double y = -gamepad1.left_stick_y;
-//        double x = gamepad1.left_stick_x;
-//        double pivot = gamepad1.right_stick_x;
-//
-//        //imu
-//        if (gamepad1.start) {
-//            driveTrain.imu.resetYaw();
-//        }
-//        double heading = driveTrain.imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
-//        telemetry.addData("imu", heading);
-//
-//        //fc equations
-//        double rotX = x * Math.cos(-heading) - y * Math.sin(-heading);
-//        double rotY = x * Math.sin(-heading) + y * Math.cos(-heading);
-//        rotX *= 1.1;
-//        double denominator = Math.max(Math.abs(rotY) + Math.abs(rotX) + Math.abs(pivot), 1.0);
-//        double frontLeftPower = -(rotY + rotX + pivot) / denominator;
-//        double backLeftPower = -(rotY - rotX + pivot) / denominator;
-//        double frontRightPower = -(rotY - rotX - pivot) / denominator;
-//        double backRightPower = -(rotY + rotX - pivot) / denominator;
-//
-//        //
-//        driveTrain.frontLeftMotor.setPower(frontLeftPower * driveSpeed);
-//        driveTrain.backLeftMotor.setPower(backLeftPower * driveSpeed);
-//        driveTrain.frontRightMotor.setPower(frontRightPower * driveSpeed);
-//        driveTrain.backRightMotor.setPower(backRightPower * driveSpeed);
-//    }
-
     public void operator() {
-        double targetVelocity = 1500;
+        double targetVelocity = 1300;
         //Intake & transfer speed
         if (!(gamepad2.left_stick_y > 0.1) || !(gamepad2.left_stick_y < 0.1)){
             intakeSpeed = (0.75 * (-gamepad2.left_stick_y));
@@ -141,21 +112,9 @@ public class teleOp extends LinearOpMode {
         }
 
         Operator.intake.setPower(gamepad2.left_trigger * intakeSpeed);
-//        Operator.transfer.setPower(gamepad2.left_trigger * intakeSpeed);
-
+        Operator.transfer.setPower(gamepad2.left_trigger * intakeSpeed);
         // Gate open/close
-        if (gateTime <= timer.seconds() - 1) {
-            if (gamepad2.right_bumper && gatePos == "open") {
-                Operator.gate.setPosition(Operator.openGate);
-                gatePos = "closed";
-                gateTime = timer.seconds();
-            }
-            else if (gamepad2.right_bumper && gatePos == "closed") {
-                Operator.gate.setPosition(Operator.closeGate);
-                gatePos = "open";
-                gateTime = timer.seconds();
-            }
-        }
+
 
         //Fly Wheel on/off
         if (flyWheelTime <= timer.seconds() - 0.3) {
@@ -175,16 +134,45 @@ public class teleOp extends LinearOpMode {
         }
 
         if (Operator.flyWheel.getVelocity() > (targetVelocity - 100) && Operator.flyWheel.getVelocity() < (targetVelocity + 100)) {
+            Operator.gate.setPosition(Operator.openGate);
             Operator.transfer.setPower(gamepad2.left_trigger * intakeSpeed);
         } else {
             Operator.transfer.setPower(-0.1);
+            Operator.gate.setPosition(Operator.closeGate);
+            if (gateTime <= timer.seconds() - 1) {
+                if (gamepad2.right_bumper && gatePos == "open") {
+                    Operator.gate.setPosition(Operator.openGate);
+                    gatePos = "closed";
+                    gateTime = timer.seconds();
+                }
+                else if (gamepad2.right_trigger>1 && gatePos == "closed") {
+                    Operator.gate.setPosition(Operator.closeGate);
+                    gatePos = "open";
+                    gateTime = timer.seconds();
+                } else {
+                    Operator.gate.setPosition(Operator.closeGate);
+                }
+            }
         }
 
-//        telemetry.addData("gatePos", Operator.gate.getPosition());
-//        telemetry.addData("velocity", Operator.flyWheel.getVelocity());
-//        telemetry.addData("flyWheel", flyWheelStatus);
-//        telemetry.addData("imu", robotOrientation.getYaw(AngleUnit.DEGREES));
-//        telemetry.update();
+//        if (gateTime <= timer.seconds() - 1) {
+//            if (gamepad2.right_bumper && gatePos == "open") {
+//                Operator.gate.setPosition(Operator.openGate);
+//                gatePos = "closed";
+//                gateTime = timer.seconds();
+//            }
+//            else if (gamepad2.right_bumper && gatePos == "closed") {
+//                Operator.gate.setPosition(Operator.closeGate);
+//                gatePos = "open";
+//                gateTime = timer.seconds();
+//            }
+//        }
+
+        telemetry.addData("gatePos", Operator.gate.getPosition());
+        telemetry.addData("velocity", Operator.flyWheel.getVelocity());
+        telemetry.addData("flyWheel", flyWheelStatus);
+        telemetry.addData("imu", robotOrientation.getYaw(AngleUnit.DEGREES));
+        telemetry.update();
     }
 
 }

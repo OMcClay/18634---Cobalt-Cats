@@ -1,13 +1,11 @@
 package org.firstinspires.ftc.teamcode;
 
-import com.acmerobotics.dashboard.FtcDashboard;
-import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.PIDFCoefficients;
+import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 
 public class autoFunctions {
@@ -19,6 +17,8 @@ public class autoFunctions {
     private DcMotor intake;
     private DcMotor transfer;
     private DcMotorEx flyWheel;
+
+    public Servo gatey;
 
     ElapsedTime timer = new ElapsedTime();
 
@@ -44,6 +44,8 @@ public class autoFunctions {
         flyWheel = hardwareMap.get(DcMotorEx.class, "flyWheel");
         flyWheel.setVelocityPIDFCoefficients(90, 0, 9, 14.5);
 //        flyWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+        gatey = hardwareMap.get(Servo.class, "gate");
     }
 
     public boolean isDrivetrainBusy() {
@@ -167,7 +169,7 @@ public class autoFunctions {
 
     public void shoot(double shoot_v) {
         flyWheel.setVelocity(shoot_v);
-        opmode.sleep(2500);
+        opmode.sleep(2800);
         timer.reset();
         while (opmode.opModeIsActive() && (timer.seconds()<4)){
             transfer.setPower(0.5);
