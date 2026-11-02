@@ -16,12 +16,12 @@ public class mini_tourn extends LinearOpMode {
         waitForStart();
 
         if (opModeIsActive()) {
+            autoFunc.gatey.setPosition(0.4);
             autoFunc.forward(4.0, set_power);
-            autoFunc.shoot(1230);
+            autoFunc.shoot(1250);
             autoFunc.left(36.0, set_power);
-            autoFunc.forward(90.0, set_power);
+            autoFunc.forward(86.0, set_power);
             autoFunc.left(27.0, set_power);
-            autoFunc.right(9.0, set_power);
 
 //            autoFunc.left(36.0, set_power);
 //            autoFunc.forward(26.0, set_power);
