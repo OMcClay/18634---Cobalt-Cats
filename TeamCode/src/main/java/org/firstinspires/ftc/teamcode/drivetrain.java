@@ -31,11 +31,5 @@ public class drivetrain {
                         )
                 )
         );
-
-//        RevHubOrientationOnRobot orientationOnRobot = new RevHubOrientationOnRobot(RevHubOrientationOnRobot.LogoFacingDirection.UP, RevHubOrientationOnRobot.UsbFacingDirection.FORWARD);
-//        imu.initialize(new IMU.Parameters(orientationOnRobot));
-//        IMU.Parameters myIMUparameters;
-
-
     }
 }

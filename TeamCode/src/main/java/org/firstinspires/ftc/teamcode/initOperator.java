@@ -13,13 +13,10 @@ public class initOperator {
     DcMotor transfer;
     DcMotorEx flyWheel;
     Servo gate;
-    Servo leftFlower;
-    Servo rightFlower;
+    Servo flower;
 
-    public final double leftFlowerDown = 0.95;
-    public final double leftFlowerUp = 0;
-    public final double rightFlowerDown = 0.05;
-    public final double rightFlowerUp = 1;
+    public final double flowerDown = 0.95;
+    public final double flowerUp = 0;
     public final double closeGate = 0;
     public final double openGate = 0.4;
     double shootP = 90;
@@ -30,8 +27,7 @@ public class initOperator {
 
     public void initOperator(HardwareMap hardwareMap) {
         gate = hardwareMap.get(Servo.class, "gate");
-        leftFlower = hardwareMap.get(Servo.class, "leftFlower");
-        rightFlower = hardwareMap.get(Servo.class, "rightFlower");
+        flower = hardwareMap.get(Servo.class, "flower");
         intake = hardwareMap.get(DcMotor.class, "intake");
         transfer = hardwareMap.get(DcMotor.class, "transfer");
         flyWheel = hardwareMap.get(DcMotorEx.class, "flyWheel");

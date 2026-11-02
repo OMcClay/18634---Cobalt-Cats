@@ -12,6 +12,4 @@ public class constants {
     public static final double COUNTS_PER_INCH = (TICKS_PER_MOTOR_REV * GEAR_REDUCTION) / (WHEEL_DIAMETER_INCHES * Math.PI);
     public static final double ROBOT_DIAGONAL_DIAMETER = 18.0;
     public static final double turningCircumference = Math.PI * ROBOT_DIAGONAL_DIAMETER;
-
-
 }

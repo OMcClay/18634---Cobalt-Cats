@@ -4,7 +4,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 @Autonomous(name = "park_mini_tournament", group = "Autonomous")
-public class mini_tourn_2 extends LinearOpMode {
+public class parkAuto extends LinearOpMode {
 
     autoFunctions autoFunc;
 

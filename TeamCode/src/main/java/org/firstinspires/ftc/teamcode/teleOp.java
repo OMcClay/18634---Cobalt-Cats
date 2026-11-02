@@ -58,12 +58,10 @@ public class teleOp extends LinearOpMode {
         //Flower servos down/up
         if (gamepad1.leftBumperWasPressed()) {
             if (flowerStatus == "down") {
-                Operator.leftFlower.setPosition(Operator.leftFlowerUp);
-                Operator.rightFlower.setPosition(Operator.rightFlowerUp);
+                Operator.flower.setPosition(Operator.flowerUp);
                 flowerStatus = "up";
             } else if (flowerStatus == "up") {
-                Operator.leftFlower.setPosition(Operator.leftFlowerDown);
-                Operator.rightFlower.setPosition(Operator.rightFlowerDown);
+                Operator.flower.setPosition(Operator.flowerDown);
                 flowerStatus = "down";
             }
         }
