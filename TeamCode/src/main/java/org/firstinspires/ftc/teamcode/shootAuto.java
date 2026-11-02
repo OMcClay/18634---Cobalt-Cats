@@ -5,12 +5,13 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 @Autonomous(name = "shoot_mini_tournament", group = "Autonomous")
 public class shootAuto extends LinearOpMode {
-
+    robot robot = new robot(); // Instantiates your structural files
     autoFunctions autoFunc;
 
     @Override
     public void runOpMode() throws InterruptedException {
-        autoFunc = new autoFunctions(this);
+        robot.init(hardwareMap);
+        autoFunc = new autoFunctions(this, robot);
         double set_power = 0.5;
 
         waitForStart();
