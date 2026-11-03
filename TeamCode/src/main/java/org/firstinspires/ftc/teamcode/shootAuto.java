@@ -17,7 +17,7 @@ public class shootAuto extends LinearOpMode {
         waitForStart();
 
         if (opModeIsActive()) {
-            robot.operator.gate.setPosition(0.4);
+            robot.operator.gate.setPosition(robot.operator.openGate);
             autoFunc.forward(4.0, set_power);
             autoFunc.shoot(1250);
             autoFunc.left(36.0, set_power);

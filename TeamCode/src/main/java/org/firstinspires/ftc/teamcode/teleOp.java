@@ -19,7 +19,6 @@ public class teleOp extends LinearOpMode {
     boolean flyWheelStatus = false;
     ElapsedTime timer = new ElapsedTime();
     double flyWheelTime;
-    double gateTime;
     double lastShootTime;
     String gatePos = "closed";
     YawPitchRollAngles robotOrientation;
@@ -98,10 +97,6 @@ public class teleOp extends LinearOpMode {
         driveTrain.frontRightMotor.setPower(frontRight / denominator * driveSpeed);
         driveTrain.backLeftMotor.setPower(backLeft / denominator * driveSpeed);
         driveTrain.backRightMotor.setPower(backRight / denominator * driveSpeed);
-
-        telemetry.addData("Yaw", yaw);
-        telemetry.addData("Drive Speed", driveSpeed);
-        telemetry.update();
     }
 
     public void operator() {
@@ -114,9 +109,7 @@ public class teleOp extends LinearOpMode {
             intakeSpeed = (0.75);
         }
 
-        //Fly Wheel on/off
-
-
+        //Gate Control
         if ((Operator.flyWheel.getVelocity() > (targetVelocity - 100) && Operator.flyWheel.getVelocity() < (targetVelocity + 100) && !(gamepad2.right_bumper)) || (gamepad2.right_bumper && gatePos == "closed")) {
             gatePos = "open";
             Operator.gate.setPosition(Operator.openGate);
@@ -125,19 +118,8 @@ public class teleOp extends LinearOpMode {
             Operator.gate.setPosition(Operator.closeGate);
         }
 
-//        if (gateTime <= timer.seconds() - 1) {
-//            if (gamepad2.right_bumper && gatePos == "open") {
-//                Operator.gate.setPosition(Operator.openGate);
-//                gatePos = "closed";
-//                gateTime = timer.seconds();
-//            }
-//            else if (gamepad2.right_bumper && gatePos == "closed") {
-//                Operator.gate.setPosition(Operator.closeGate);
-//                gatePos = "open";
-//                gateTime = timer.seconds();
-//            }
-//        }
 
+        // Shoot
         if (gamepad2.square) {
             if (lastShootTime < timer.seconds() - 1) {
                 Operator.transfer.setPower(-0.25);
@@ -179,9 +161,7 @@ public class teleOp extends LinearOpMode {
             lastShootTime = timer.seconds();
         }
 
-        telemetry.addData("gatePos", Operator.gate.getPosition());
         telemetry.addData("velocity", Operator.flyWheel.getVelocity());
-        telemetry.addData("flyWheel", flyWheelStatus);
         telemetry.addData("imu", robotOrientation.getYaw(AngleUnit.DEGREES));
         telemetry.update();
     }
