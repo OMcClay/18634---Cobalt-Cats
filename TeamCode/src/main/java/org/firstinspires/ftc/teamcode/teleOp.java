@@ -14,7 +14,6 @@ public class teleOp extends LinearOpMode {
 
     double intakeSpeed = 0.75;
     double driveSpeed = 1;
-    String flowerStatus = "down";
     boolean flyWheelStatus = false;
     ElapsedTime timer = new ElapsedTime();
     double flyWheelTime;
@@ -56,15 +55,13 @@ public class teleOp extends LinearOpMode {
             }
         }
 
-        //Flower servos down/up
-        if (gamepad1.leftBumperWasPressed()) {
-            if (flowerStatus == "down") {
-                Operator.flower.setPosition(Operator.flowerUp);
-                flowerStatus = "up";
-            } else if (flowerStatus == "up") {
-                Operator.flower.setPosition(Operator.flowerDown);
-                flowerStatus = "down";
-            }
+        //Flower servos
+        if (gamepad1.left_bumper) {
+            Operator.flower.setPower(1);
+        } else if (gamepad1.right_bumper) {
+            Operator.flower.setPower(-1);
+        } else {
+            Operator.flower.setPower(0);
         }
 
     }
@@ -114,11 +111,11 @@ public class teleOp extends LinearOpMode {
 
 
         if ((Operator.flyWheel.getVelocity() > (targetVelocity - 100) && Operator.flyWheel.getVelocity() < (targetVelocity + 100) && !(gamepad2.right_bumper)) || (gamepad2.right_bumper && gatePos == "closed")) {
-            Operator.gate.setPosition(Operator.openGate);
             gatePos = "open";
+            Operator.gate.setPosition(Operator.openGate);
         } else if (!(Operator.flyWheel.getVelocity() > (targetVelocity - 100) && Operator.flyWheel.getVelocity() < (targetVelocity + 100) && !(gamepad2.right_bumper)) || (gamepad2.right_bumper && gatePos == "open")) {
-            Operator.gate.setPosition(Operator.closeGate);
             gatePos = "closed";
+            Operator.gate.setPosition(Operator.closeGate);
         }
 
 //        if (gateTime <= timer.seconds() - 1) {
@@ -144,7 +141,7 @@ public class teleOp extends LinearOpMode {
 
             if (gatePos == "open" && lastShootTime > timer.seconds() - 1) {
                 if (!(gamepad2.left_trigger > 0.1)) {
-                    Operator.transfer.setPower(-1);
+                    Operator.transfer.setPower(1);
                     Operator.intake.setPower(1);
                 } else {
                     Operator.transfer.setPower(gamepad2.left_trigger * intakeSpeed);
