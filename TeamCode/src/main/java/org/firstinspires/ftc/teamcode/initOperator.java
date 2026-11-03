@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.acmerobotics.dashboard.config.Config;
+import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -13,10 +14,10 @@ public class initOperator {
     DcMotor transfer;
     DcMotorEx flyWheel;
     Servo gate;
-    Servo flower;
-
-    public final double flowerDown = 0.95;
-    public final double flowerUp = 0;
+//    Servo flower;
+    CRServo flower;
+//    public final double flowerDown = 0.95;
+//    public final double flowerUp = 0;
     public final double closeGate = 0;
     public final double openGate = 0.4;
     double shootP = 90;
@@ -27,7 +28,7 @@ public class initOperator {
 
     public void initOperator(HardwareMap hardwareMap) {
         gate = hardwareMap.get(Servo.class, "gate");
-        flower = hardwareMap.get(Servo.class, "flower");
+        flower = hardwareMap.get(CRServo.class, "flower");
         intake = hardwareMap.get(DcMotor.class, "intake");
         transfer = hardwareMap.get(DcMotor.class, "transfer");
         flyWheel = hardwareMap.get(DcMotorEx.class, "flyWheel");
