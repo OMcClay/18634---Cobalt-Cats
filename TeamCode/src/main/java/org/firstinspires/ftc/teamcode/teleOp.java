@@ -3,11 +3,11 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
-import com.qualcomm.robotcore.hardware.IMU;
 
 @TeleOp (name = "TeleOp")
 public class teleOp extends LinearOpMode {
@@ -48,7 +48,7 @@ public class teleOp extends LinearOpMode {
 
     public void driver() {
 //         botCentricDrive();
-        fieldCentricDriveO();
+        fieldCentricDrive();
 
         // Drive Speed
         if (gamepad1.right_bumper) {
@@ -78,11 +78,11 @@ public class teleOp extends LinearOpMode {
         driveTrain.backLeftMotor.setPower((gamepad1.left_stick_y - gamepad1.left_stick_y) * driveSpeed);
         driveTrain.backRightMotor.setPower((gamepad1.left_stick_y - gamepad1.left_stick_y) * driveSpeed);
     }
-    public void fieldCentricDriveO() {
+    public void fieldCentricDrive() {
         if (gamepad1.start) driveTrain.imu.resetYaw();
-        double y = gamepad1.left_stick_y;
-        double x = -gamepad1.left_stick_x;
-        double pivot = -gamepad1.right_stick_x;
+        double y = -gamepad1.left_stick_y;
+        double x = gamepad1.left_stick_x;
+        double pivot = gamepad1.right_stick_x;
 
         double yaw = robotOrientation.getYaw(AngleUnit.RADIANS);
 
