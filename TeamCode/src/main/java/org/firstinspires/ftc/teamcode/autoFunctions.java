@@ -9,81 +9,58 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 
 public class autoFunctions {
-    private DcMotor frontRightMotor;
-    private DcMotor frontLeftMotor;
-    private DcMotor backRightMotor;
-    private DcMotor backLeftMotor;
-
-    private DcMotor intake;
-    private DcMotor transfer;
-    private DcMotorEx flyWheel;
-
     public Servo gatey;
 
     ElapsedTime timer = new ElapsedTime();
 
 
     private LinearOpMode opmode;
+    private robot robot;
     private constants constant = new constants();
 
-    public autoFunctions(LinearOpMode opmode) {
+    drivetrain driveTrain = new drivetrain();
+
+    public autoFunctions(LinearOpMode opmode, robot robot) {
         this.opmode = opmode;
-        HardwareMap hardwareMap = opmode.hardwareMap;
-        frontRightMotor = hardwareMap.get(DcMotor.class, "frontRight");
-        frontLeftMotor = hardwareMap.get(DcMotor.class, "frontLeft");
-        backRightMotor = hardwareMap.get(DcMotor.class, "backRight");
-        backLeftMotor = hardwareMap.get(DcMotor.class, "backLeft");
-        frontRightMotor.setDirection(DcMotor.Direction.REVERSE);
-        frontLeftMotor.setDirection(DcMotor.Direction.REVERSE);
-        backLeftMotor.setDirection(DcMotor.Direction.REVERSE);
-
-        intake = hardwareMap.get(DcMotor.class, "intake");
-        transfer = hardwareMap.get(DcMotor.class, "transfer");
-        intake.setDirection(DcMotor.Direction.REVERSE);
-
-        flyWheel = hardwareMap.get(DcMotorEx.class, "flyWheel");
-        flyWheel.setVelocityPIDFCoefficients(90, 0, 9, 14.5);
-//        flyWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-
-        gatey = hardwareMap.get(Servo.class, "gate");
+        this.robot = robot;
     }
 
     public boolean isDrivetrainBusy() {
-        return frontRightMotor.isBusy() ||
-                frontLeftMotor.isBusy() ||
-                backRightMotor.isBusy() ||
-                backLeftMotor.isBusy();
+        return robot.drive.frontRightMotor.isBusy() ||
+                robot.drive.frontLeftMotor.isBusy() ||
+                robot.drive.backRightMotor.isBusy() ||
+                robot.drive.backLeftMotor.isBusy();
     }
 
     public void setTargetPosition(double distance, int fr, int fl, int br, int bl) {
         double counts = constant.COUNTS_PER_INCH;
         int target = (int) (distance * counts);
-        frontRightMotor.setTargetPosition(fr * target);
-        frontLeftMotor.setTargetPosition(fl * target);
-        backRightMotor.setTargetPosition(br * target);
-        backLeftMotor.setTargetPosition(bl * target);
+        robot.drive.frontRightMotor.setTargetPosition(fr * target);
+        robot.drive.frontLeftMotor.setTargetPosition(fl * target);
+        robot.drive.backRightMotor.setTargetPosition(br * target);
+        robot.drive.backLeftMotor.setTargetPosition(bl * target);
 
     }
 
     public void setPower(double p) {
-        frontRightMotor.setPower(Math.abs(p));
-        frontLeftMotor.setPower(Math.abs(p));
-        backRightMotor.setPower(Math.abs(p));
-        backLeftMotor.setPower(Math.abs(p));
+        robot.drive.frontRightMotor.setPower(Math.abs(p));
+        robot.drive.frontLeftMotor.setPower(Math.abs(p));
+        robot.drive.backRightMotor.setPower(Math.abs(p));
+        robot.drive.backLeftMotor.setPower(Math.abs(p));
     }
 
     public void showCurrentPosition() {
-        opmode.telemetry.addData("FR Position", frontRightMotor.getCurrentPosition());
-        opmode.telemetry.addData("FL Position", frontLeftMotor.getCurrentPosition());
-        opmode.telemetry.addData("BR Position", backRightMotor.getCurrentPosition());
-        opmode.telemetry.addData("BL Position", backLeftMotor.getCurrentPosition());
+        opmode.telemetry.addData("FR Position", robot.drive.frontRightMotor.getCurrentPosition());
+        opmode.telemetry.addData("FL Position", robot.drive.frontLeftMotor.getCurrentPosition());
+        opmode.telemetry.addData("BR Position", robot.drive.backRightMotor.getCurrentPosition());
+        opmode.telemetry.addData("BL Position", robot.drive.backLeftMotor.getCurrentPosition());
     }
 
     public void setRunMode(DcMotor.RunMode mode) {
-        frontLeftMotor.setMode(mode);
-        frontRightMotor.setMode(mode);
-        backLeftMotor.setMode(mode);
-        backRightMotor.setMode(mode);
+        robot.drive.frontLeftMotor.setMode(mode);
+        robot.drive.frontRightMotor.setMode(mode);
+        robot.drive.backLeftMotor.setMode(mode);
+        robot.drive.backRightMotor.setMode(mode);
     }
 
 
@@ -168,18 +145,18 @@ public class autoFunctions {
     }
 
     public void shoot(double shoot_v) {
-        flyWheel.setVelocity(shoot_v);
+        robot.operator.flyWheel.setVelocity(shoot_v);
         opmode.sleep(2800);
         timer.reset();
         while (opmode.opModeIsActive() && (timer.seconds()<4)){
-            transfer.setPower(0.5);
-            intake.setPower(0.5);
-            opmode.telemetry.addData("Current position", flyWheel.getCurrentPosition());
+            robot.operator.transfer.setPower(0.5);
+            robot.operator.intake.setPower(0.5);
+            opmode.telemetry.addData("Current position", robot.operator.flyWheel.getCurrentPosition());
             opmode.telemetry.update();
         }
-        flyWheel.setVelocity(0);
-        transfer.setPower(0);
-        intake.setPower(0);
+        robot.operator.flyWheel.setVelocity(0);
+        robot.operator.transfer.setPower(0);
+        robot.operator.intake.setPower(0);
     }
 
 
