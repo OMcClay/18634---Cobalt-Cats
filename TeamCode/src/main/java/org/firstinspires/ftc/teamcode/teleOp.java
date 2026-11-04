@@ -20,7 +20,7 @@ public class teleOp extends LinearOpMode {
     ElapsedTime timer = new ElapsedTime();
     double flyWheelTime;
     double lastShootTime;
-    double currentShootTime;
+    String lastShoot = "none";
     String gatePos = "closed";
     YawPitchRollAngles robotOrientation;
 
@@ -110,31 +110,39 @@ public class teleOp extends LinearOpMode {
             intakeSpeed = (0.75);
         }
 
-        telemetry.addData("intakeSPeed", intakeSpeed);
-        telemetry.update();
 
         //Gate Control
-        if ((Operator.flyWheel.getVelocity() > (targetVelocity - 100) && Operator.flyWheel.getVelocity() < (targetVelocity + 100) && !(gamepad2.right_bumper)) || (gamepad2.right_bumper && gatePos == "closed")) {
-            gatePos = "open";
-            Operator.gate.setPosition(Operator.openGate);
-        } else if (!(Operator.flyWheel.getVelocity() > (targetVelocity - 100) && Operator.flyWheel.getVelocity() < (targetVelocity + 100) && !(gamepad2.right_bumper)) || (gamepad2.right_bumper && gatePos == "open")) {
-            gatePos = "closed";
-            Operator.gate.setPosition(Operator.closeGate);
+        if (gamepad2.right_bumper) {
+            if (gamepad2.right_bumper && gatePos == "closed") {
+                gatePos = "open";
+                Operator.gate.setPosition(Operator.openGate);
+            }
+        } else {
+            if (Operator.flyWheel.getVelocity() > (targetVelocity - 100) && Operator.flyWheel.getVelocity() < (targetVelocity + 100)) {
+                gatePos = "open";
+                Operator.gate.setPosition(Operator.openGate);
+            } else if (!(Operator.flyWheel.getVelocity() > (targetVelocity - 100) && Operator.flyWheel.getVelocity() < (targetVelocity + 100))) {
+                gatePos = "closed";
+                Operator.gate.setPosition(Operator.closeGate);
+            }
         }
+
 
         // Shoot
         if (gamepad2.square) {
-            if (lastShootTime > timer.seconds() - 1.5) {
+            lastShoot = "square";
+            if (lastShootTime > timer.seconds() - 0.75) {
+                Operator.flyWheel.setVelocity(-1000);
                 Operator.transfer.setPower(-0.25);
                 Operator.intake.setPower(-0.1);
             } else {
                 Operator.flyWheel.setVelocity(1300);
             }
 
-            if (Operator.gate.getPosition() == Operator.openGate && lastShootTime < timer.seconds() + 1.5) {
+            if (Operator.gate.getPosition() == Operator.openGate && lastShootTime < timer.seconds() + 0.75) {
                 if (!(gamepad2.left_trigger > 0.2)) {
-                    Operator.transfer.setPower(1);
-                    Operator.intake.setPower(1);
+                    Operator.transfer.setPower(0.75);
+                    Operator.intake.setPower(0.75);
                 } else {
                     Operator.transfer.setPower(gamepad2.left_trigger * intakeSpeed);
                     Operator.intake.setPower(gamepad2.left_trigger * intakeSpeed);
@@ -142,7 +150,10 @@ public class teleOp extends LinearOpMode {
 
             }
         } else {
-            if (flyWheelTime <= timer.seconds() - 0.3) {
+            if (lastShoot == "square") {
+                Operator.flyWheel.setVelocity(0);
+                lastShoot = "no";
+            } else if (flyWheelTime <= timer.seconds() - 0.3) {
                 if (gamepad2.triangle && !flyWheelStatus) {
                     Operator.flyWheel.setVelocity(1300);
                     flyWheelStatus = true;

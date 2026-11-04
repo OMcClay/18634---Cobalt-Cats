@@ -19,7 +19,7 @@ public class initOperator {
 //    public final double flowerDown = 0.95;
 //    public final double flowerUp = 0;
     public final double closeGate = 0;
-    public final double openGate = 0.4;
+    public final double openGate = 0.25;
     double shootP = 90;
     double shootI = 0;
     double shootD = 9;
