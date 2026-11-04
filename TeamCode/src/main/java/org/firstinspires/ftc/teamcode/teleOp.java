@@ -9,6 +9,8 @@ import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 import org.firstinspires.ftc.vision.VisionPortal;
+import org.firstinspires.ftc.vision.apriltag.AprilTagClusterDetection;
+import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 
 import com.qualcomm.robotcore.hardware.IMU;
@@ -27,7 +29,8 @@ public class teleOp extends LinearOpMode {
     double gateTime;
     String gatePos = "closed";
     YawPitchRollAngles robotOrientation;
-
+    AprilTagProcessor tagProcessor;
+    VisionPortal visionPortal;
     private IMU imu;
 
     @Override
@@ -51,6 +54,15 @@ public class teleOp extends LinearOpMode {
             robotOrientation = imu.getRobotYawPitchRollAngles();
             driver();
             operator();
+            boolean clusterFound = false;
+            for (AprilTagDetection detection : tagProcessor.getDetections()) {
+                if (detection instanceof AprilTagClusterDetection) {
+                    AprilTagClusterDetection cluster = (AprilTagClusterDetection) detection;
+                    telemetry.addData("Distance to cluster", cluster.ftcPose.range);
+                    break;
+                }
+            }
+            if (!clusterFound) telemetry.addData("Cluster", "Searching");
             telemetry.update();
         }
     }
