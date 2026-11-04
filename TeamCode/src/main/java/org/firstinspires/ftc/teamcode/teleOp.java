@@ -20,6 +20,7 @@ public class teleOp extends LinearOpMode {
     ElapsedTime timer = new ElapsedTime();
     double flyWheelTime;
     double lastShootTime;
+    double currentShootTime;
     String gatePos = "closed";
     YawPitchRollAngles robotOrientation;
 
@@ -50,7 +51,7 @@ public class teleOp extends LinearOpMode {
         fieldCentricDrive();
 
         // Drive Speed
-        if (gamepad1.right_bumper) {
+        if (gamepad1.dpadUpWasPressed()) {
             if (driveSpeed == 1) {
                 driveSpeed = 0.45;
             }
@@ -118,18 +119,17 @@ public class teleOp extends LinearOpMode {
             Operator.gate.setPosition(Operator.closeGate);
         }
 
-
         // Shoot
         if (gamepad2.square) {
-            if (lastShootTime < timer.seconds() - 1) {
+            if (lastShootTime > timer.seconds() - 1.5) {
                 Operator.transfer.setPower(-0.25);
                 Operator.intake.setPower(-0.1);
             } else {
                 Operator.flyWheel.setVelocity(1300);
             }
 
-            if (gatePos == "open" && lastShootTime > timer.seconds() - 1) {
-                if (!(gamepad2.left_trigger > 0.1)) {
+            if (Operator.gate.getPosition() == Operator.openGate && lastShootTime < timer.seconds() + 1.5) {
+                if (!(gamepad2.left_trigger > 0.2)) {
                     Operator.transfer.setPower(1);
                     Operator.intake.setPower(1);
                 } else {
