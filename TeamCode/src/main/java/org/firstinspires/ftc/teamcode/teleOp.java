@@ -3,17 +3,11 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
-import org.firstinspires.ftc.vision.VisionPortal;
-import org.firstinspires.ftc.vision.apriltag.AprilTagClusterDetection;
-import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
-import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
-
-import com.qualcomm.robotcore.hardware.IMU;
 
 @TeleOp (name = "TeleOp")
 public class teleOp extends LinearOpMode {
@@ -22,15 +16,14 @@ public class teleOp extends LinearOpMode {
 
     double intakeSpeed = 0.75;
     double driveSpeed = 1;
-    String flowerStatus = "down";
     boolean flyWheelStatus = false;
     ElapsedTime timer = new ElapsedTime();
     double flyWheelTime;
-    double gateTime;
+    double lastShootTime;
+    double currentShootTime;
     String gatePos = "closed";
     YawPitchRollAngles robotOrientation;
-    AprilTagProcessor tagProcessor;
-    VisionPortal visionPortal;
+
     private IMU imu;
 
     @Override
@@ -39,11 +32,6 @@ public class teleOp extends LinearOpMode {
         RevHubOrientationOnRobot.LogoFacingDirection logoDirection = RevHubOrientationOnRobot.LogoFacingDirection.FORWARD;
         RevHubOrientationOnRobot.UsbFacingDirection usbDirection = RevHubOrientationOnRobot.UsbFacingDirection.LEFT;
         RevHubOrientationOnRobot orientationOnRobot = new RevHubOrientationOnRobot(logoDirection, usbDirection);
-        tagProcessor = new AprilTagProcessor.Builder().build();
-        visionPortal = new VisionPortal.Builder()
-                .setCamera(hardwareMap.get(WebcamName.class, "Eyes"))
-                .addProcessor(tagProcessor)
-                .build();
         imu.initialize(new IMU.Parameters(orientationOnRobot));
         imu.resetYaw();
         driveTrain.initDrive(hardwareMap);
@@ -54,25 +42,16 @@ public class teleOp extends LinearOpMode {
             robotOrientation = imu.getRobotYawPitchRollAngles();
             driver();
             operator();
-            boolean clusterFound = false;
-            for (AprilTagDetection detection : tagProcessor.getDetections()) {
-                if (detection instanceof AprilTagClusterDetection) {
-                    AprilTagClusterDetection cluster = (AprilTagClusterDetection) detection;
-                    telemetry.addData("Distance to cluster", cluster.ftcPose.range);
-                    break;
-                }
-            }
-            if (!clusterFound) telemetry.addData("Cluster", "Searching");
             telemetry.update();
         }
     }
 
     public void driver() {
 //         botCentricDrive();
-        fieldCentricDriveO();
+        fieldCentricDrive();
 
         // Drive Speed
-        if (gamepad1.right_bumper) {
+        if (gamepad1.dpadUpWasPressed()) {
             if (driveSpeed == 1) {
                 driveSpeed = 0.45;
             }
@@ -81,15 +60,13 @@ public class teleOp extends LinearOpMode {
             }
         }
 
-        //Flower servos down/up
-        if (gamepad1.leftBumperWasPressed()) {
-            if (flowerStatus == "down") {
-                Operator.flower.setPosition(Operator.flowerUp);
-                flowerStatus = "up";
-            } else if (flowerStatus == "up") {
-                Operator.flower.setPosition(Operator.flowerDown);
-                flowerStatus = "down";
-            }
+        //Flower servos
+        if (gamepad1.left_bumper) {
+            Operator.flower.setPower(1);
+        } else if (gamepad1.right_bumper) {
+            Operator.flower.setPower(-1);
+        } else {
+            Operator.flower.setPower(0);
         }
 
     }
@@ -99,11 +76,11 @@ public class teleOp extends LinearOpMode {
         driveTrain.backLeftMotor.setPower((gamepad1.left_stick_y - gamepad1.left_stick_y) * driveSpeed);
         driveTrain.backRightMotor.setPower((gamepad1.left_stick_y - gamepad1.left_stick_y) * driveSpeed);
     }
-    public void fieldCentricDriveO() {
+    public void fieldCentricDrive() {
         if (gamepad1.start) driveTrain.imu.resetYaw();
-        double y = gamepad1.left_stick_y;
-        double x = -gamepad1.left_stick_x;
-        double pivot = -gamepad1.right_stick_x;
+        double y = -gamepad1.left_stick_y;
+        double x = gamepad1.left_stick_x;
+        double pivot = gamepad1.right_stick_x;
 
         double yaw = robotOrientation.getYaw(AngleUnit.RADIANS);
 
@@ -121,84 +98,74 @@ public class teleOp extends LinearOpMode {
         driveTrain.frontRightMotor.setPower(frontRight / denominator * driveSpeed);
         driveTrain.backLeftMotor.setPower(backLeft / denominator * driveSpeed);
         driveTrain.backRightMotor.setPower(backRight / denominator * driveSpeed);
-
-        telemetry.addData("Yaw", yaw);
-        telemetry.addData("Drive Speed", driveSpeed);
-        telemetry.update();
     }
 
     public void operator() {
         double targetVelocity = 1300;
         //Intake & transfer speed
-        if (!(gamepad2.left_stick_y > 0.1) || !(gamepad2.left_stick_y < 0.1)){
+        if (!(gamepad2.left_stick_y > 0.1) && !(gamepad2.left_stick_y < 0.1)){
             intakeSpeed = (0.75 * (-gamepad2.left_stick_y));
         }
         else {
             intakeSpeed = (0.75);
         }
 
-        Operator.intake.setPower(gamepad2.left_trigger * intakeSpeed);
-        Operator.transfer.setPower(gamepad2.left_trigger * intakeSpeed);
-        // Gate open/close
-
-
-        //Fly Wheel on/off
-        if (flyWheelTime <= timer.seconds() - 0.3) {
-            if (gamepad2.triangle && !flyWheelStatus) {
-                Operator.flyWheel.setVelocity(1300);
-                flyWheelStatus = true;
-                flyWheelTime = timer.seconds();
-            } else if (gamepad2.triangle && flyWheelStatus) {
-                Operator.flyWheel.setVelocity(0);
-                flyWheelStatus = false;
-                flyWheelTime = timer.seconds();
-            } else if (gamepad2.touchpad) {
-                Operator.flyWheel.setVelocity(900);
-            } else if (gamepad2.share) {
-                Operator.flyWheel.setVelocity(-2100);
-            }
-        }
-
-        if (Operator.flyWheel.getVelocity() > (targetVelocity - 100) && Operator.flyWheel.getVelocity() < (targetVelocity + 100)) {
+        //Gate Control
+        if ((Operator.flyWheel.getVelocity() > (targetVelocity - 100) && Operator.flyWheel.getVelocity() < (targetVelocity + 100) && !(gamepad2.right_bumper)) || (gamepad2.right_bumper && gatePos == "closed")) {
+            gatePos = "open";
             Operator.gate.setPosition(Operator.openGate);
-            Operator.transfer.setPower(gamepad2.left_trigger * intakeSpeed);
-        } else {
-            Operator.transfer.setPower(-0.1);
+        } else if (!(Operator.flyWheel.getVelocity() > (targetVelocity - 100) && Operator.flyWheel.getVelocity() < (targetVelocity + 100) && !(gamepad2.right_bumper)) || (gamepad2.right_bumper && gatePos == "open")) {
+            gatePos = "closed";
             Operator.gate.setPosition(Operator.closeGate);
-            if (gateTime <= timer.seconds() - 1) {
-                if (gamepad2.right_bumper && gatePos == "open") {
-                    Operator.gate.setPosition(Operator.openGate);
-                    gatePos = "closed";
-                    gateTime = timer.seconds();
-                }
-                else if (gamepad2.right_trigger>1 && gatePos == "closed") {
-                    Operator.gate.setPosition(Operator.closeGate);
-                    gatePos = "open";
-                    gateTime = timer.seconds();
-                } else {
-                    Operator.gate.setPosition(Operator.closeGate);
-                }
-            }
         }
 
-//        if (gateTime <= timer.seconds() - 1) {
-//            if (gamepad2.right_bumper && gatePos == "open") {
-//                Operator.gate.setPosition(Operator.openGate);
-//                gatePos = "closed";
-//                gateTime = timer.seconds();
-//            }
-//            else if (gamepad2.right_bumper && gatePos == "closed") {
-//                Operator.gate.setPosition(Operator.closeGate);
-//                gatePos = "open";
-//                gateTime = timer.seconds();
-//            }
-//        }
+        // Shoot
+        if (gamepad2.square) {
+            if (lastShootTime > timer.seconds() - 1.5) {
+                Operator.transfer.setPower(-0.25);
+                Operator.intake.setPower(-0.1);
+            } else {
+                Operator.flyWheel.setVelocity(1300);
+            }
 
-        telemetry.addData("gatePos", Operator.gate.getPosition());
+            if (Operator.gate.getPosition() == Operator.openGate && lastShootTime < timer.seconds() + 1.5) {
+                if (!(gamepad2.left_trigger > 0.2)) {
+                    Operator.transfer.setPower(1);
+                    Operator.intake.setPower(1);
+                } else {
+                    Operator.transfer.setPower(gamepad2.left_trigger * intakeSpeed);
+                    Operator.intake.setPower(gamepad2.left_trigger * intakeSpeed);
+                }
+
+            }
+        } else {
+            if (flyWheelTime <= timer.seconds() - 0.3) {
+                if (gamepad2.triangle && !flyWheelStatus) {
+                    Operator.flyWheel.setVelocity(1300);
+                    flyWheelStatus = true;
+                    flyWheelTime = timer.seconds();
+                } else if (gamepad2.triangle && flyWheelStatus) {
+                    Operator.flyWheel.setVelocity(0);
+                    flyWheelStatus = false;
+                    flyWheelTime = timer.seconds();
+                } else if (gamepad2.touchpad) {
+                    Operator.flyWheel.setVelocity(900);
+                } else if (gamepad2.share) {
+                    Operator.flyWheel.setVelocity(-2100);
+                } else if (gamepad2.b) {
+                    Operator.flyWheel.setVelocity(0);
+                }
+            }
+            Operator.intake.setPower(gamepad2.left_trigger * intakeSpeed);
+            Operator.transfer.setPower(gamepad2.left_trigger * intakeSpeed);
+            lastShootTime = timer.seconds();
+        }
+
         telemetry.addData("velocity", Operator.flyWheel.getVelocity());
-        telemetry.addData("flyWheel", flyWheelStatus);
         telemetry.addData("imu", robotOrientation.getYaw(AngleUnit.DEGREES));
         telemetry.update();
     }
 
 }
+
+
