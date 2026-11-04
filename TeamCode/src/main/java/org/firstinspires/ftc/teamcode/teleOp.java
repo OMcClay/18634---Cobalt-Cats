@@ -6,8 +6,15 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
+import org.firstinspires.ftc.vision.VisionPortal;
+import org.firstinspires.ftc.vision.apriltag.AprilTagClusterDetection;
+import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
+import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
+
+import com.qualcomm.robotcore.hardware.IMU;
 
 @TeleOp (name = "TeleOp")
 public class teleOp extends LinearOpMode {
@@ -16,6 +23,7 @@ public class teleOp extends LinearOpMode {
 
     double intakeSpeed = 0.75;
     double driveSpeed = 1;
+    String flowerStatus = "down";
     boolean flyWheelStatus = false;
     ElapsedTime timer = new ElapsedTime();
     double flyWheelTime;
@@ -23,7 +31,8 @@ public class teleOp extends LinearOpMode {
     double currentShootTime;
     String gatePos = "closed";
     YawPitchRollAngles robotOrientation;
-
+    AprilTagProcessor tagProcessor;
+    VisionPortal visionPortal;
     private IMU imu;
 
     @Override
@@ -32,6 +41,8 @@ public class teleOp extends LinearOpMode {
         RevHubOrientationOnRobot.LogoFacingDirection logoDirection = RevHubOrientationOnRobot.LogoFacingDirection.FORWARD;
         RevHubOrientationOnRobot.UsbFacingDirection usbDirection = RevHubOrientationOnRobot.UsbFacingDirection.LEFT;
         RevHubOrientationOnRobot orientationOnRobot = new RevHubOrientationOnRobot(logoDirection, usbDirection);
+        tagProcessor = new AprilTagProcessor.Builder().build();
+        visionPortal = new VisionPortal.Builder().setCamera(hardwareMap.get(WebcamName.class, "Eyes")).addProcessor(tagProcessor).build();
         imu.initialize(new IMU.Parameters(orientationOnRobot));
         imu.resetYaw();
         driveTrain.initDrive(hardwareMap);
@@ -42,6 +53,16 @@ public class teleOp extends LinearOpMode {
             robotOrientation = imu.getRobotYawPitchRollAngles();
             driver();
             operator();
+            boolean clusterFound = false;
+            for (AprilTagDetection detection : tagProcessor.getDetections()) {
+                if (detection instanceof AprilTagClusterDetection) {
+                    AprilTagClusterDetection cluster = (AprilTagClusterDetection) detection;
+                    telemetry.addData("Distance to cluster", cluster.ftcPose.range);
+                    telemetry.addData("Cluster Info", cluster.metadata.name);
+                    break;
+                }
+            }
+            if (!clusterFound) telemetry.addData("Cluster", "Searching");
             telemetry.update();
         }
     }
@@ -167,5 +188,3 @@ public class teleOp extends LinearOpMode {
     }
 
 }
-
-
