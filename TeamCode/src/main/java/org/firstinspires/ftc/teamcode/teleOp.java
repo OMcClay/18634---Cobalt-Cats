@@ -13,6 +13,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 public class teleOp extends LinearOpMode {
     drivetrain driveTrain = new drivetrain();
     initOperator Operator = new initOperator();
+    aprilTag AprilTag = new aprilTag();
 
     double intakeSpeed = 0.75;
     double driveSpeed = 1;
