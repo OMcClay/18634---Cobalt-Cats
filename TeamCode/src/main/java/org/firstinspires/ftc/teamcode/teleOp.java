@@ -126,14 +126,14 @@ public class teleOp extends LinearOpMode {
 
         // Shoot
         if (gamepad2.square) {
-            if (lastShootTime > timer.seconds() - 1.5) {
-                Operator.transfer.setPower(-0.25);
-                Operator.intake.setPower(-0.1);
+            if (lastShootTime > timer.seconds() - 1.25) {
+                Operator.transfer.setPower(-0.3);
+                Operator.intake.setPower(-0.15);
             } else {
                 Operator.flyWheel.setVelocity(1300);
             }
 
-            if (Operator.gate.getPosition() == Operator.openGate && lastShootTime < timer.seconds() + 1.5) {
+            if (Operator.gate.getPosition() == Operator.openGate && lastShootTime < timer.seconds() + 1.3) {
                 if (!(gamepad2.left_trigger > 0.2)) {
                     Operator.transfer.setPower(1);
                     Operator.intake.setPower(1);
