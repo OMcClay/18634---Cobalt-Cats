@@ -108,7 +108,7 @@ public class teleOp extends LinearOpMode {
         }
 //        double targetVelocity = 1300;
         //Intake & transfer speed
-        if ((gamepad2.left_stick_y = 0.1) || (gamepad2.left_stick_y <= -0.1)){
+        if ((gamepad2.left_stick_y >= 0.1) || (gamepad2.left_stick_y <= -0.1)){
             intakeSpeed = (0.75 * (-gamepad2.left_stick_y));
         }
         else {
