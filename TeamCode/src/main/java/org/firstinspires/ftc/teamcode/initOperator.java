@@ -24,6 +24,8 @@ public class initOperator {
     double shootI = 0;
     double shootD = 9;
     double shootF = 14.5;
+    double velocityM = 5.14743;
+    double velocityB = 1044.003;
     public PIDFCoefficients shooterPIDF = new PIDFCoefficients(shootP,shootI,shootD,shootF);
 
     public void initOperator(HardwareMap hardwareMap) {
