@@ -157,6 +157,9 @@ public class teleOp extends LinearOpMode {
             }
         }
 
+        if (Operator.gate.getPosition() != Operator.closeGate) {
+            gamepad2.rumble(1);
+        }
         // Shoot
         if (gamepad2.square) {
             square = true;
