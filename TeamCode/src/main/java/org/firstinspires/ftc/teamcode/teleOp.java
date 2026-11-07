@@ -1,9 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
-import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
@@ -14,8 +12,6 @@ import org.firstinspires.ftc.vision.apriltag.AprilTagClusterDetection;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 
-import com.qualcomm.robotcore.hardware.IMU;
-
 @TeleOp (name = "TeleOp")
 public class teleOp extends LinearOpMode {
     drivetrain driveTrain = new drivetrain();
@@ -23,53 +19,38 @@ public class teleOp extends LinearOpMode {
 
     double intakeSpeed = 0.75;
     double driveSpeed = 1;
-    String flowerStatus = "down";
     boolean flyWheelStatus = false;
     ElapsedTime timer = new ElapsedTime();
     double flyWheelTime;
     double lastShootTime;
-    double currentShootTime;
+    double targetVelocity;
+    double tagDist;
     String gatePos = "closed";
     YawPitchRollAngles robotOrientation;
     AprilTagProcessor tagProcessor;
     VisionPortal visionPortal;
-    private IMU imu;
+//    private IMU imu;
 
     @Override
     public void runOpMode() throws InterruptedException {
-        imu = hardwareMap.get(IMU.class, "imu");
-        RevHubOrientationOnRobot.LogoFacingDirection logoDirection = RevHubOrientationOnRobot.LogoFacingDirection.FORWARD;
-        RevHubOrientationOnRobot.UsbFacingDirection usbDirection = RevHubOrientationOnRobot.UsbFacingDirection.LEFT;
-        RevHubOrientationOnRobot orientationOnRobot = new RevHubOrientationOnRobot(logoDirection, usbDirection);
         tagProcessor = new AprilTagProcessor.Builder().build();
         visionPortal = new VisionPortal.Builder().setCamera(hardwareMap.get(WebcamName.class, "Eyes")).addProcessor(tagProcessor).build();
-        imu.initialize(new IMU.Parameters(orientationOnRobot));
-        imu.resetYaw();
         driveTrain.initDrive(hardwareMap);
         Operator.initOperator(hardwareMap);
         waitForStart();
         timer.reset();
         while (opModeIsActive()) {
-            robotOrientation = imu.getRobotYawPitchRollAngles();
+            robotOrientation = driveTrain.imu.getRobotYawPitchRollAngles();
             driver();
             operator();
-            boolean clusterFound = false;
-            for (AprilTagDetection detection : tagProcessor.getDetections()) {
-                if (detection instanceof AprilTagClusterDetection) {
-                    AprilTagClusterDetection cluster = (AprilTagClusterDetection) detection;
-                    telemetry.addData("Distance to cluster", cluster.ftcPose.range);
-                    telemetry.addData("Cluster Info", cluster.metadata.name);
-                    break;
-                }
-            }
-            if (!clusterFound) telemetry.addData("Cluster", "Searching");
-            telemetry.update();
+
         }
     }
 
     public void driver() {
 //         botCentricDrive();
         fieldCentricDrive();
+        aprilTag();
 
         // Drive Speed
         if (gamepad1.dpadUpWasPressed()) {
@@ -122,9 +103,12 @@ public class teleOp extends LinearOpMode {
     }
 
     public void operator() {
-        double targetVelocity = 1300;
+        if (true) {
+            targetVelocity = Operator.velocityM * tagDist + Operator.velocityB;
+        }
+//        double targetVelocity = 1300;
         //Intake & transfer speed
-        if (!(gamepad2.left_stick_y > 0.1) && !(gamepad2.left_stick_y < 0.1)){
+        if ((gamepad2.left_stick_y >= 0.1) || (gamepad2.left_stick_y <= -0.1)){
             intakeSpeed = (0.75 * (-gamepad2.left_stick_y));
         }
         else {
@@ -142,14 +126,14 @@ public class teleOp extends LinearOpMode {
 
         // Shoot
         if (gamepad2.square) {
-            if (lastShootTime > timer.seconds() - 1.5) {
-                Operator.transfer.setPower(-0.25);
-                Operator.intake.setPower(-0.1);
+            if (lastShootTime > timer.seconds() - 1.25) {
+                Operator.transfer.setPower(-0.3);
+                Operator.intake.setPower(-0.15);
             } else {
                 Operator.flyWheel.setVelocity(1300);
             }
 
-            if (Operator.gate.getPosition() == Operator.openGate && lastShootTime < timer.seconds() + 1.5) {
+            if (Operator.gate.getPosition() == Operator.openGate && lastShootTime < timer.seconds() + 1.3) {
                 if (!(gamepad2.left_trigger > 0.2)) {
                     Operator.transfer.setPower(1);
                     Operator.intake.setPower(1);
@@ -184,6 +168,21 @@ public class teleOp extends LinearOpMode {
 
         telemetry.addData("velocity", Operator.flyWheel.getVelocity());
         telemetry.addData("imu", robotOrientation.getYaw(AngleUnit.DEGREES));
+        telemetry.update();
+    }
+
+    public void aprilTag() {
+        boolean clusterFound = false;
+        for (AprilTagDetection detection : tagProcessor.getDetections()) {
+            if (detection instanceof AprilTagClusterDetection) {
+                AprilTagClusterDetection cluster = (AprilTagClusterDetection) detection;
+                tagDist = cluster.ftcPose.range;
+                telemetry.addData("Distance to cluster", cluster.ftcPose.range);
+                telemetry.addData("Cluster Info", cluster.metadata.name);
+                break;
+            }
+        }
+        if (!clusterFound) telemetry.addData("Cluster", "Searching");
         telemetry.update();
     }
 
