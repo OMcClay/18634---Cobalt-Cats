@@ -140,7 +140,12 @@ public class teleOp extends LinearOpMode {
         // Shoot
         if (gamepad2.square) {
             //Target Velocity from equation
-            targetVelocity = Operator.velocityM * tagDist + Operator.velocityB;
+            if (!(tagDist >= 0)) {
+                targetVelocity = 1300;
+            } else {
+                targetVelocity = Operator.velocityM * tagDist + Operator.velocityB;
+            }
+
             //double targetVelocity = 1300;
 
             if (lastShootTime > timer.seconds() - 1.25) {
