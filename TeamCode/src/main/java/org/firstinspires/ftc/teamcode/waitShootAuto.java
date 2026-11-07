@@ -19,11 +19,12 @@ public class waitShootAuto extends LinearOpMode{
         waitForStart();
 
         if (opModeIsActive()) {
-            sleep(10000);
+            sleep(18000);
 
             autoFunc.forward(4.0, set_power);
             autoFunc.shoot(1200);
-            autoFunc.left(10.0, set_power);
+            autoFunc.forward(5.0, set_power);
+            autoFunc.right(52.0, set_power);
 
         }
     }
