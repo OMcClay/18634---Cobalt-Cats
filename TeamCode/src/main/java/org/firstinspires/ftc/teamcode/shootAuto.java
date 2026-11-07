@@ -3,7 +3,7 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
-@Autonomous(name = "shoot_mini_tournament", group = "Autonomous")
+@Autonomous(name = "shoot_auto", group = "Autonomous")
 public class shootAuto extends LinearOpMode {
     robot robot = new robot(); // Instantiates your structural files
     autoFunctions autoFunc;
@@ -19,11 +19,11 @@ public class shootAuto extends LinearOpMode {
         if (opModeIsActive()) {
             robot.operator.gate.setPosition(robot.operator.openGate);
             autoFunc.forward(4.0, set_power);
-            autoFunc.shoot(1250);
+            autoFunc.shoot(1200);
             autoFunc.left(36.0, set_power);
-            autoFunc.forward(80.0, set_power);
+            autoFunc.forward(73.0, set_power);
             autoFunc.left(27.0, set_power);
-
+        
 //            autoFunc.left(36.0, set_power);
 //            autoFunc.forward(26.0, set_power);
 //            autoFunc.turn_right(90.0, set_power);
