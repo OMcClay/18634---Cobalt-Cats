@@ -144,6 +144,9 @@ public class teleOp extends LinearOpMode {
 
             }
         } else {
+            if (gamepad2.squareWasReleased()) {
+                Operator.flyWheel.setVelocity(0);
+            }
             if (flyWheelTime <= timer.seconds() - 0.3) {
                 if (gamepad2.triangle && !flyWheelStatus) {
                     Operator.flyWheel.setVelocity(1300);
