@@ -3,7 +3,7 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
-@Autonomous(name = "park_mini_tournament", group = "Autonomous")
+@Autonomous(name = "park_mini_tournament", group = "Autonomous", preselectTeleOp = "TeleOp")
 public class parkAuto extends LinearOpMode {
     robot robot = new robot(); // Instantiates your structural files
     autoFunctions autoFunc;

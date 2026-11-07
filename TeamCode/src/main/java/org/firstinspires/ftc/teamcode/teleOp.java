@@ -25,6 +25,8 @@ public class teleOp extends LinearOpMode {
     ElapsedTime timer = new ElapsedTime();
     double flyWheelTime;
     double lastShootTime;
+    double lastSquare = 0;
+    boolean square;
     double targetVelocity;
     double tagDist;
     String gatePos = "closed";
@@ -43,6 +45,10 @@ public class teleOp extends LinearOpMode {
         Operator.initOperator(hardwareMap);
         alliance = (String) blackboard.get("Alliance");
 
+        telemetry.addData("Alliance", alliance);
+        telemetry.addData("Initialize", "Initialized");
+        telemetry.update();
+
         waitForStart();
         timer.reset();
         while (opModeIsActive()) {
@@ -59,7 +65,7 @@ public class teleOp extends LinearOpMode {
         aprilTag();
 
         // Drive Speed
-        if (gamepad1.dpadUpWasPressed()) {
+        if (gamepad1.right_bumper) {
             if (driveSpeed == 1) {
                 driveSpeed = 0.45;
             }
@@ -69,13 +75,13 @@ public class teleOp extends LinearOpMode {
         }
 
         //Flower servos
-        if (gamepad1.left_bumper) {
-            Operator.flower.setPower(1);
-        } else if (gamepad1.right_bumper) {
-            Operator.flower.setPower(-1);
-        } else {
-            Operator.flower.setPower(0);
-        }
+//        if (gamepad1.left_bumper) {
+//            Operator.flower.setPower(1);
+//        } else if (gamepad1.right_bumper) {
+//            Operator.flower.setPower(-1);
+//        } else {
+//            Operator.flower.setPower(0);
+//        }
 
         // State what alliance robot is
         if (gamepad1.dpad_up) {
@@ -126,19 +132,34 @@ public class teleOp extends LinearOpMode {
         }
 
         //Gate Control
-        if (targetVelocity != 0) {
-            if ((Operator.flyWheel.getVelocity() > (targetVelocity - 100) && Operator.flyWheel.getVelocity() < (targetVelocity + 100) && !(gamepad2.right_bumper)) || (gamepad2.right_bumper && gatePos == "closed")) {
-                gatePos = "open";
-                Operator.gate.setPosition(Operator.openGate);
-            } else if (!(Operator.flyWheel.getVelocity() > (targetVelocity - 100) && Operator.flyWheel.getVelocity() < (targetVelocity + 100) && !(gamepad2.right_bumper)) || (gamepad2.right_bumper && gatePos == "open")) {
-                gatePos = "closed";
-                Operator.gate.setPosition(Operator.closeGate);
+        if (!square) {
+            if (targetVelocity != 0) {
+                if ((Operator.flyWheel.getVelocity() > (targetVelocity - 100) && Operator.flyWheel.getVelocity() < (targetVelocity + 100) && !(gamepad2.right_bumper)) || (gamepad2.right_bumper && gatePos == "closed")) {
+                    gatePos = "open";
+                    Operator.gate.setPosition(Operator.openGate);
+                } else if (!(Operator.flyWheel.getVelocity() > (targetVelocity - 100) && Operator.flyWheel.getVelocity() < (targetVelocity + 100) && !(gamepad2.right_bumper)) || (gamepad2.right_bumper && gatePos == "open")) {
+                    gatePos = "closed";
+                    Operator.gate.setPosition(Operator.closeGate);
+                }
+            } else {
+                if (lastSquare > timer.seconds() - 1) {
+                    Operator.gate.setPosition(Operator.closeGate);
+                    gatePos = "closed";
+                } else {
+                    if (gamepad2.right_bumper && gatePos == "closed") {
+                        gatePos = "open";
+                        Operator.gate.setPosition(Operator.openGate);
+                    } else if (gamepad2.right_bumper && gatePos == "open") {
+                        gatePos = "closed";
+                        Operator.gate.setPosition(Operator.closeGate);
+                    }
+                }
             }
         }
 
-
         // Shoot
         if (gamepad2.square) {
+            square = true;
             //Target Velocity from equation
             if (!(tagDist >= 0)) {
                 targetVelocity = 1300;
@@ -148,14 +169,17 @@ public class teleOp extends LinearOpMode {
 
             //double targetVelocity = 1300;
 
+            //reverse transfer & shooter
             if (lastShootTime > timer.seconds() - 1.25) {
                 Operator.transfer.setPower(-0.3);
                 Operator.intake.setPower(-0.15);
                 Operator.flyWheel.setVelocity(-1000);
+                Operator.gate.setPosition(Operator.closeGate);
             } else {
                 Operator.flyWheel.setVelocity(1300);
             }
 
+            //Shoot
             if (Operator.gate.getPosition() == Operator.openGate && lastShootTime < timer.seconds() + 1.3) {
                 if (!(gamepad2.left_trigger > 0.2)) {
                     Operator.transfer.setPower(0.85);
@@ -166,9 +190,11 @@ public class teleOp extends LinearOpMode {
                 }
 
             }
+            lastSquare = timer.seconds();
         } else {
-            if (gamepad2.squareWasReleased()) {
-                Operator.flyWheel.setVelocity(0);
+            square = false;
+            if (lastSquare > timer.seconds() - 1) {
+                targetVelocity = 0;
             }
             if (flyWheelTime <= timer.seconds() - 0.3) {
                 if (gamepad2.triangle && !flyWheelStatus) {
