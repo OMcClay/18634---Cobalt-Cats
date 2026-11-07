@@ -9,13 +9,14 @@ import org.firstinspires.ftc.vision.apriltag.AprilTagClusterDetection;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 
-@Autonomous(name = "shoot_auto", group = "Autonomous")
+@Autonomous(name = "shoot_auto", group = "Autonomous", preselectTeleOp = "TeleOp")
 public class shootAuto extends LinearOpMode {
     robot robot = new robot(); // Instantiates your structural files
     autoFunctions autoFunc;
 
     AprilTagProcessor tagProcessor;
     VisionPortal visionPortal;
+
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -28,6 +29,9 @@ public class shootAuto extends LinearOpMode {
         double closestCluster = Double.MAX_VALUE;
         boolean clusterFound = false;
         String closestClusterName = "Lorem Ipsum :)"; //Clears errors
+
+        telemetry.addData("Initialize", "Initialized");
+        telemetry.update();
 
         waitForStart();
 
