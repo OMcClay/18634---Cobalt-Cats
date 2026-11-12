@@ -73,8 +73,8 @@ public class shootAuto extends LinearOpMode {
             autoFunc.forward(4.0, set_power);
             autoFunc.shoot(1200);
             autoFunc.left(36.0, set_power);
-            autoFunc.forward(73.0, set_power);
-            autoFunc.left(27.0, set_power);
+            autoFunc.forward(68.0, set_power);
+            autoFunc.left(25.0, set_power);
         
 //            autoFunc.left(36.0, set_power);
 //            autoFunc.forward(26.0, set_power);

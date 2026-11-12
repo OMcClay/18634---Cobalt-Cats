@@ -132,34 +132,44 @@ public class teleOp extends LinearOpMode {
         }
 
         //Gate Control
-        if (!square) {
-            if (targetVelocity != 0) {
-                if ((Operator.flyWheel.getVelocity() > (targetVelocity - 100) && Operator.flyWheel.getVelocity() < (targetVelocity + 100) && !(gamepad2.right_bumper)) || (gamepad2.right_bumper && gatePos == "closed")) {
-                    gatePos = "open";
-                    Operator.gate.setPosition(Operator.openGate);
-                } else if (!(Operator.flyWheel.getVelocity() > (targetVelocity - 100) && Operator.flyWheel.getVelocity() < (targetVelocity + 100) && !(gamepad2.right_bumper)) || (gamepad2.right_bumper && gatePos == "open")) {
-                    gatePos = "closed";
-                    Operator.gate.setPosition(Operator.closeGate);
-                }
-            } else {
-                if (lastSquare > timer.seconds() - 1) {
-                    Operator.gate.setPosition(Operator.closeGate);
-                    gatePos = "closed";
-                } else {
-                    if (gamepad2.right_bumper && gatePos == "closed") {
-                        gatePos = "open";
-                        Operator.gate.setPosition(Operator.openGate);
-                    } else if (gamepad2.right_bumper && gatePos == "open") {
-                        gatePos = "closed";
-                        Operator.gate.setPosition(Operator.closeGate);
-                    }
-                }
-            }
+//        if (!square) {
+//            if (targetVelocity != 0) {
+//                if ((Operator.flyWheel.getVelocity() > (targetVelocity - 100) && Operator.flyWheel.getVelocity() < (targetVelocity + 100) && !(gamepad2.right_bumper)) || (gamepad2.right_bumper && gatePos == "closed")) {
+//                    gatePos = "open";
+//                    Operator.gate.setPosition(Operator.openGate);
+//                } else if (!(Operator.flyWheel.getVelocity() > (targetVelocity - 100) && Operator.flyWheel.getVelocity() < (targetVelocity + 100) && !(gamepad2.right_bumper)) || (gamepad2.right_bumper && gatePos == "open")) {
+//                    gatePos = "closed";
+//                    Operator.gate.setPosition(Operator.closeGate);
+//                }
+//            } else {
+//                if (lastSquare > timer.seconds() - 1) {
+//                    Operator.gate.setPosition(Operator.closeGate);
+//                    gatePos = "closed";
+//                } else {
+//                    if (gamepad2.right_bumper && gatePos == "closed") {
+//                        gatePos = "open";
+//                        Operator.gate.setPosition(Operator.openGate);
+//                    } else if (gamepad2.right_bumper && gatePos == "open") {
+//                        gatePos = "closed";
+//                        Operator.gate.setPosition(Operator.closeGate);
+//                    }
+//                }
+//            }
+//        }
+        if (gamepad2.right_bumper) {
+            gatePos = "open";
+            Operator.gate.setPosition(Operator.openGate);
+        } else {
+            gatePos = "closed";
+            Operator.gate.setPosition(Operator.closeGate);
         }
 
-        if (Operator.gate.getPosition() != Operator.closeGate) {
-            gamepad2.rumble(1);
+        if (!(targetVelocity == 0 ) && (Operator.flyWheel.getVelocity() > (targetVelocity - 100) && Operator.flyWheel.getVelocity() < (targetVelocity + 100))) {
+            gamepad2.rumble(500);
         }
+//        if (Operator.gate.getPosition() != Operator.closeGate) {
+//            gamepad2.rumble(500);
+//        }
         // Shoot
         if (gamepad2.square) {
             square = true;
@@ -210,7 +220,16 @@ public class teleOp extends LinearOpMode {
                     targetVelocity = 0;
                     flyWheelStatus = false;
                     flyWheelTime = timer.seconds();
-                } else if (gamepad2.touchpad) {
+                } else if (gamepad2.dpad_up) {
+                    targetVelocity = 1400;
+                    flyWheelStatus = false;
+                    flyWheelTime = timer.seconds();
+                } else if (gamepad2.dpad_down) {
+                    targetVelocity = 1200;
+                    flyWheelStatus = false;
+                    flyWheelTime = timer.seconds();
+                }
+                else if (gamepad2.touchpad) {
                     //poop
                     targetVelocity = 900;
                     flyWheelTime = timer.seconds();
