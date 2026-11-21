@@ -83,7 +83,7 @@ public class teleOp extends LinearOpMode {
 //            Operator.flower.setPower(0);
 //        }
 
-        // State what alliance robot is
+        //Manually state what alliance robot is
         if (gamepad1.dpad_up) {
             alliance = "Blue";
         } else if (gamepad1.dpad_down) {
@@ -132,44 +132,42 @@ public class teleOp extends LinearOpMode {
         }
 
         //Gate Control
-//        if (!square) {
-//            if (targetVelocity != 0) {
-//                if ((Operator.flyWheel.getVelocity() > (targetVelocity - 30) && Operator.flyWheel.getVelocity() < (targetVelocity + 30) && !(gamepad2.right_bumper)) || (gamepad2.right_bumper && gatePos == "closed")) {
-//                    gatePos = "open";
-//                    Operator.gate.setPosition(Operator.openGate);
-//                } else if (!(Operator.flyWheel.getVelocity() > (targetVelocity - 30) && Operator.flyWheel.getVelocity() < (targetVelocity + 30) && !(gamepad2.right_bumper)) || (gamepad2.right_bumper && gatePos == "open")) {
-//                    gatePos = "closed";
-//                    Operator.gate.setPosition(Operator.closeGate);
-//                }
-//            } else {
-//                if (lastSquare > timer.seconds() - 1) {
-//                    Operator.gate.setPosition(Operator.closeGate);
-//                    gatePos = "closed";
-//                } else {
-//                    if (gamepad2.right_bumper && gatePos == "closed") {
-//                        gatePos = "open";
-//                        Operator.gate.setPosition(Operator.openGate);
-//                    } else if (gamepad2.right_bumper && gatePos == "open") {
-//                        gatePos = "closed";
-//                        Operator.gate.setPosition(Operator.closeGate);
-//                    }
-//                }
-//            }
-//        }
-        if (gamepad2.right_bumper) {
-            gatePos = "open";
-            Operator.gate.setPosition(Operator.openGate);
+        if(!square) {
+            // manual gate
+            if (gamepad2.right_bumper) {
+                gatePos = "open";
+                Operator.gate.setPosition(Operator.openGate);
+            } else {
+                gatePos = "closed";
+                Operator.gate.setPosition(Operator.closeGate);
+            }
         } else {
-            gatePos = "closed";
-            Operator.gate.setPosition(Operator.closeGate);
+            if (gamepad2.left_bumper) {
+                //Left bumper stops gate being automatically open with square, then manual control gate
+                if (gamepad2.right_bumper) {
+                    gatePos = "open";
+                    Operator.gate.setPosition(Operator.openGate);
+                } else {
+                    gatePos = "closed";
+                    Operator.gate.setPosition(Operator.closeGate);
+                }
+            } else {
+                //Gate will (almost) always be open when square pressed (shooting controlled by transfer)
+                if ((targetVelocity != 0) && (Operator.flyWheel.getVelocity() > (targetVelocity - 150) && Operator.flyWheel.getVelocity() < (targetVelocity + 150))) {
+                    Operator.gate.setPosition(Operator.openGate);
+                    gatePos = "open";
+                } else {
+                    Operator.gate.setPosition(Operator.closeGate);
+                    gatePos = "closed";
+                }
+            }
         }
 
         if (!(targetVelocity == 0 ) && (Operator.flyWheel.getVelocity() > (targetVelocity - 30) && Operator.flyWheel.getVelocity() < (targetVelocity + 30))) {
-            gamepad2.rumble(500);
+            //Rumble operator controller when shooter up to speed
+            gamepad2.rumble(250);
         }
-//        if (Operator.gate.getPosition() != Operator.closeGate) {
-//            gamepad2.rumble(500);
-//        }
+
         // Shoot
         if (gamepad2.square) {
             square = true;
@@ -182,22 +180,33 @@ public class teleOp extends LinearOpMode {
 
             //double targetVelocity = 1300;
 
-            //reverse transfer & shooter
             if (lastShootTime > timer.seconds() - 1.25) {
+                //reverse transfer & shooter if last time square was pressed wasn't too long ago
                 Operator.transfer.setPower(-0.3);
                 Operator.intake.setPower(-0.15);
                 Operator.flyWheel.setVelocity(-1000);
                 Operator.gate.setPosition(Operator.closeGate);
             } else {
-                Operator.flyWheel.setVelocity(1300);
+                //Once reversed, set the velocity to the target velocity
+                Operator.flyWheel.setVelocity(targetVelocity);
             }
 
-            //Shoot
-            if (Operator.gate.getPosition() == Operator.openGate && lastShootTime < timer.seconds() + 1.3) {
+            //Shoot (after shooters have been reversed and gate is open)
+            if (Operator.gate.getPosition() == Operator.openGate && lastShootTime < timer.seconds() - 1.3) {
                 if (!(gamepad2.left_trigger > 0.2)) {
-                    Operator.transfer.setPower(0.85);
-                    Operator.intake.setPower(0.85);
+                    //Controls shooting using transfer & intake instead of gate
+                    if (!(targetVelocity == 0 ) && (Operator.flyWheel.getVelocity() > (targetVelocity - 30) && Operator.flyWheel.getVelocity() < (targetVelocity + 30))){
+                        //If up to speed, run intake & transfer to feed into shooting
+                        Operator.transfer.setPower(0.85);
+                        Operator.intake.setPower(0.85);
+                    } else {
+                        //If not up to speed, then prevent balls from going in to shoot
+                        Operator.transfer.setPower(0);
+                        Operator.intake.setPower(0);
+                    }
+
                 } else {
+                    //Manually control intake and transfer
                     Operator.transfer.setPower(gamepad2.left_trigger * intakeSpeed);
                     Operator.intake.setPower(gamepad2.left_trigger * intakeSpeed);
                 }
