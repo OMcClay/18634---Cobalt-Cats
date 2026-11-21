@@ -17,9 +17,13 @@ public class tunePIDF extends LinearOpMode {
     double lowVelocity = 900;
     public static double curTargetVelocity = highVelocity;
     public static double tuneP = 90;
-    public static double tuneI = 0;
+    //16
+    public static double tuneI = 0.075;
+    //0
     public static double tuneD = 9;
+    //0.25
     public static double tuneF = 14.5;
+    //15.52
 
     @Override
     public void runOpMode() throws InterruptedException{

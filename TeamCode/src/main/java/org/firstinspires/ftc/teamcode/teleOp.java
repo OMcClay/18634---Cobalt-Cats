@@ -134,10 +134,10 @@ public class teleOp extends LinearOpMode {
         //Gate Control
 //        if (!square) {
 //            if (targetVelocity != 0) {
-//                if ((Operator.flyWheel.getVelocity() > (targetVelocity - 100) && Operator.flyWheel.getVelocity() < (targetVelocity + 100) && !(gamepad2.right_bumper)) || (gamepad2.right_bumper && gatePos == "closed")) {
+//                if ((Operator.flyWheel.getVelocity() > (targetVelocity - 30) && Operator.flyWheel.getVelocity() < (targetVelocity + 30) && !(gamepad2.right_bumper)) || (gamepad2.right_bumper && gatePos == "closed")) {
 //                    gatePos = "open";
 //                    Operator.gate.setPosition(Operator.openGate);
-//                } else if (!(Operator.flyWheel.getVelocity() > (targetVelocity - 100) && Operator.flyWheel.getVelocity() < (targetVelocity + 100) && !(gamepad2.right_bumper)) || (gamepad2.right_bumper && gatePos == "open")) {
+//                } else if (!(Operator.flyWheel.getVelocity() > (targetVelocity - 30) && Operator.flyWheel.getVelocity() < (targetVelocity + 30) && !(gamepad2.right_bumper)) || (gamepad2.right_bumper && gatePos == "open")) {
 //                    gatePos = "closed";
 //                    Operator.gate.setPosition(Operator.closeGate);
 //                }
@@ -164,7 +164,7 @@ public class teleOp extends LinearOpMode {
             Operator.gate.setPosition(Operator.closeGate);
         }
 
-        if (!(targetVelocity == 0 ) && (Operator.flyWheel.getVelocity() > (targetVelocity - 100) && Operator.flyWheel.getVelocity() < (targetVelocity + 100))) {
+        if (!(targetVelocity == 0 ) && (Operator.flyWheel.getVelocity() > (targetVelocity - 30) && Operator.flyWheel.getVelocity() < (targetVelocity + 30))) {
             gamepad2.rumble(500);
         }
 //        if (Operator.gate.getPosition() != Operator.closeGate) {
