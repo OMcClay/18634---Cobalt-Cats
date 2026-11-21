@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.acmerobotics.dashboard.FtcDashboard;
+import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -13,7 +14,7 @@ import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagClusterDetection;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
-
+@Config
 @TeleOp (name = "TeleOp")
 public class teleOp extends LinearOpMode {
     drivetrain driveTrain = new drivetrain();
@@ -27,7 +28,7 @@ public class teleOp extends LinearOpMode {
     double lastShootTime;
     double lastSquare = 0;
     boolean square;
-    double targetVelocity;
+    public static double targetVelocity;
     double tagDist;
     String gatePos = "closed";
     String alliance;
@@ -86,8 +87,10 @@ public class teleOp extends LinearOpMode {
         //Manually state what alliance robot is
         if (gamepad1.dpad_up) {
             alliance = "Blue";
+            blackboard.put("Alliance", "Blue");
         } else if (gamepad1.dpad_down) {
             alliance = "Red";
+            blackboard.put("Alliance", "Red");
         }
     }
 
@@ -123,8 +126,6 @@ public class teleOp extends LinearOpMode {
     }
 
     public void operator() {
-
-
         //Gate Control
         if(!square) {
             // manual gate
@@ -167,14 +168,14 @@ public class teleOp extends LinearOpMode {
             square = true;
             //Target Velocity from equation
             if (!(tagDist >= 0)) {
-                targetVelocity = 1300;
+                targetVelocity = 1180;
             } else {
                 targetVelocity = Operator.velocityM * tagDist + Operator.velocityB;
             }
 
             //double targetVelocity = 1300;
 
-            if (lastShootTime > timer.seconds() - 0.8) {
+            if (lastShootTime > timer.seconds() - 0.5) {
                 //reverse transfer & shooter if last time square was pressed wasn't too long ago
                 Operator.transfer.setPower(-0.3);
                 Operator.intake.setPower(-0.15);
@@ -186,7 +187,7 @@ public class teleOp extends LinearOpMode {
             }
 
             //Shoot (after shooters have been reversed and gate is open)
-            if (Operator.gate.getPosition() == Operator.openGate && lastShootTime < timer.seconds() - 1.5) {
+            if (Operator.gate.getPosition() == Operator.openGate && lastShootTime < timer.seconds() - 1.25) {
                 if (!(gamepad2.left_trigger > 0.2)) {
                     //Controls shooting using transfer & intake instead of gate
                     if (!(targetVelocity == 0 ) && (Operator.flyWheel.getVelocity() > (targetVelocity - 30) && Operator.flyWheel.getVelocity() < (targetVelocity + 30))){
@@ -241,16 +242,31 @@ public class teleOp extends LinearOpMode {
                     flyWheelTime = timer.seconds();
                 } else if (gamepad2.b) {
                     //stop
-                    targetVelocity = 0;
+                    Operator.flyWheel.setPower(0);
+//                    targetVelocity = 0;
                     flyWheelTime = timer.seconds();
                 }
                 Operator.flyWheel.setVelocity(targetVelocity);
             }
-            intakeAndTransfer();
+            if (gamepad2.left_bumper) {
+                if (!(targetVelocity == 0 ) && (Operator.flyWheel.getVelocity() > (targetVelocity - 30) && Operator.flyWheel.getVelocity() < (targetVelocity + 40))){
+                    //If up to speed, run intake & transfer to feed into shooting
+                    Operator.transfer.setPower(0.85);
+                    Operator.intake.setPower(0.85);
+                } else {
+                    //If not up to speed, then prevent balls from going in to shoot
+                    Operator.transfer.setPower(0);
+                    Operator.intake.setPower(0);
+                }
+            } else {
+                intakeAndTransfer();
+            }
+
             lastShootTime = timer.seconds();
         }
 
         telemetry.addData("velocity", Operator.flyWheel.getVelocity());
+        telemetry.addData("Target Velocity", targetVelocity);
         telemetry.addData("imu", robotOrientation.getYaw(AngleUnit.DEGREES));
         telemetry.update();
     }
