@@ -21,7 +21,7 @@ public class initOperator {
     public final double closeGate = 0;
     public final double openGate = 0.4;
     double shootP = 90;
-    double shootI = 0;
+    double shootI = 0.075;
     double shootD = 9;
     double shootF = 14.5;
     double velocityM = 5.14743;

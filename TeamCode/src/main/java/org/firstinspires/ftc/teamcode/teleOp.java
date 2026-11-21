@@ -25,9 +25,12 @@ public class teleOp extends LinearOpMode {
     ElapsedTime timer = new ElapsedTime();
     double flyWheelTime;
     double lastShootTime;
+    double lastSquare = 0;
+    boolean square;
     double targetVelocity;
     double tagDist;
     String gatePos = "closed";
+    String alliance;
     YawPitchRollAngles robotOrientation;
     AprilTagProcessor tagProcessor;
     VisionPortal visionPortal;
@@ -40,6 +43,12 @@ public class teleOp extends LinearOpMode {
         visionPortal = new VisionPortal.Builder().setCamera(hardwareMap.get(WebcamName.class, "Eyes")).addProcessor(tagProcessor).build();
         driveTrain.initDrive(hardwareMap);
         Operator.initOperator(hardwareMap);
+        alliance = (String) blackboard.get("Alliance");
+
+        telemetry.addData("Alliance", alliance);
+        telemetry.addData("Initialize", "Initialized");
+        telemetry.update();
+
         waitForStart();
         timer.reset();
         while (opModeIsActive()) {
@@ -56,7 +65,7 @@ public class teleOp extends LinearOpMode {
         aprilTag();
 
         // Drive Speed
-        if (gamepad1.dpadUpWasPressed()) {
+        if (gamepad1.right_bumper) {
             if (driveSpeed == 1) {
                 driveSpeed = 0.45;
             }
@@ -66,15 +75,23 @@ public class teleOp extends LinearOpMode {
         }
 
         //Flower servos
-        if (gamepad1.left_bumper) {
-            Operator.flower.setPower(1);
-        } else if (gamepad1.right_bumper) {
-            Operator.flower.setPower(-1);
-        } else {
-            Operator.flower.setPower(0);
-        }
+//        if (gamepad1.left_bumper) {
+//            Operator.flower.setPower(1);
+//        } else if (gamepad1.right_bumper) {
+//            Operator.flower.setPower(-1);
+//        } else {
+//            Operator.flower.setPower(0);
+//        }
 
+        // State what alliance robot is
+        if (gamepad1.dpad_up) {
+            alliance = "Blue";
+        } else if (gamepad1.dpad_down) {
+            alliance = "Red";
+        }
     }
+
+
     public void botCentricDrive(){
         driveTrain.frontLeftMotor.setPower((gamepad1.left_stick_y + gamepad1.left_stick_y) * driveSpeed);
         driveTrain.frontRightMotor.setPower((gamepad1.left_stick_y - gamepad1.left_stick_y) * driveSpeed);
@@ -106,66 +123,126 @@ public class teleOp extends LinearOpMode {
     }
 
     public void operator() {
-        if (true) {
-            targetVelocity = Operator.velocityM * tagDist + Operator.velocityB;
-        }
-//        double targetVelocity = 1300;
         //Intake & transfer speed
         if ((gamepad2.left_stick_y >= 0.1) || (gamepad2.left_stick_y <= -0.1)){
-            intakeSpeed = (0.75 * (-gamepad2.left_stick_y));
+            intakeSpeed = (0.8 * (-gamepad2.left_stick_y));
         }
         else {
-            intakeSpeed = (0.75);
+            intakeSpeed = (0.8);
         }
 
         //Gate Control
-        if ((Operator.flyWheel.getVelocity() > (targetVelocity - 100) && Operator.flyWheel.getVelocity() < (targetVelocity + 100) && !(gamepad2.right_bumper)) || (gamepad2.right_bumper && gatePos == "closed")) {
+//        if (!square) {
+//            if (targetVelocity != 0) {
+//                if ((Operator.flyWheel.getVelocity() > (targetVelocity - 30) && Operator.flyWheel.getVelocity() < (targetVelocity + 30) && !(gamepad2.right_bumper)) || (gamepad2.right_bumper && gatePos == "closed")) {
+//                    gatePos = "open";
+//                    Operator.gate.setPosition(Operator.openGate);
+//                } else if (!(Operator.flyWheel.getVelocity() > (targetVelocity - 30) && Operator.flyWheel.getVelocity() < (targetVelocity + 30) && !(gamepad2.right_bumper)) || (gamepad2.right_bumper && gatePos == "open")) {
+//                    gatePos = "closed";
+//                    Operator.gate.setPosition(Operator.closeGate);
+//                }
+//            } else {
+//                if (lastSquare > timer.seconds() - 1) {
+//                    Operator.gate.setPosition(Operator.closeGate);
+//                    gatePos = "closed";
+//                } else {
+//                    if (gamepad2.right_bumper && gatePos == "closed") {
+//                        gatePos = "open";
+//                        Operator.gate.setPosition(Operator.openGate);
+//                    } else if (gamepad2.right_bumper && gatePos == "open") {
+//                        gatePos = "closed";
+//                        Operator.gate.setPosition(Operator.closeGate);
+//                    }
+//                }
+//            }
+//        }
+        if (gamepad2.right_bumper) {
             gatePos = "open";
             Operator.gate.setPosition(Operator.openGate);
-        } else if (!(Operator.flyWheel.getVelocity() > (targetVelocity - 100) && Operator.flyWheel.getVelocity() < (targetVelocity + 100) && !(gamepad2.right_bumper)) || (gamepad2.right_bumper && gatePos == "open")) {
+        } else {
             gatePos = "closed";
             Operator.gate.setPosition(Operator.closeGate);
         }
 
+        if (!(targetVelocity == 0 ) && (Operator.flyWheel.getVelocity() > (targetVelocity - 30) && Operator.flyWheel.getVelocity() < (targetVelocity + 30))) {
+            gamepad2.rumble(500);
+        }
+//        if (Operator.gate.getPosition() != Operator.closeGate) {
+//            gamepad2.rumble(500);
+//        }
         // Shoot
         if (gamepad2.square) {
+            square = true;
+            //Target Velocity from equation
+            if (!(tagDist >= 0)) {
+                targetVelocity = 1300;
+            } else {
+                targetVelocity = Operator.velocityM * tagDist + Operator.velocityB;
+            }
+
+            //double targetVelocity = 1300;
+
+            //reverse transfer & shooter
             if (lastShootTime > timer.seconds() - 1.25) {
                 Operator.transfer.setPower(-0.3);
                 Operator.intake.setPower(-0.15);
+                Operator.flyWheel.setVelocity(-1000);
+                Operator.gate.setPosition(Operator.closeGate);
             } else {
                 Operator.flyWheel.setVelocity(1300);
             }
 
+            //Shoot
             if (Operator.gate.getPosition() == Operator.openGate && lastShootTime < timer.seconds() + 1.3) {
                 if (!(gamepad2.left_trigger > 0.2)) {
-                    Operator.transfer.setPower(1);
-                    Operator.intake.setPower(1);
+                    Operator.transfer.setPower(0.85);
+                    Operator.intake.setPower(0.85);
                 } else {
                     Operator.transfer.setPower(gamepad2.left_trigger * intakeSpeed);
                     Operator.intake.setPower(gamepad2.left_trigger * intakeSpeed);
                 }
 
             }
+            lastSquare = timer.seconds();
         } else {
-            if (gamepad2.squareWasReleased()) {
-                Operator.flyWheel.setVelocity(0);
+            square = false;
+            if (lastSquare > timer.seconds() - 1) {
+                targetVelocity = 0;
             }
             if (flyWheelTime <= timer.seconds() - 0.3) {
                 if (gamepad2.triangle && !flyWheelStatus) {
-                    Operator.flyWheel.setVelocity(1300);
+                    // toggle on
+                    targetVelocity = 1300;
                     flyWheelStatus = true;
                     flyWheelTime = timer.seconds();
                 } else if (gamepad2.triangle && flyWheelStatus) {
-                    Operator.flyWheel.setVelocity(0);
+                    // toggle off
+                    targetVelocity = 0;
                     flyWheelStatus = false;
                     flyWheelTime = timer.seconds();
-                } else if (gamepad2.touchpad) {
-                    Operator.flyWheel.setVelocity(900);
-                } else if (gamepad2.share) {
-                    Operator.flyWheel.setVelocity(-2100);
-                } else if (gamepad2.b) {
-                    Operator.flyWheel.setVelocity(0);
+                } else if (gamepad2.dpad_up) {
+                    targetVelocity = 1400;
+                    flyWheelStatus = false;
+                    flyWheelTime = timer.seconds();
+                } else if (gamepad2.dpad_down) {
+                    targetVelocity = 1200;
+                    flyWheelStatus = false;
+                    flyWheelTime = timer.seconds();
                 }
+                else if (gamepad2.touchpad) {
+                    //poop
+                    targetVelocity = 900;
+                    flyWheelTime = timer.seconds();
+                } else if (gamepad2.share) {
+                    // reverse
+                    targetVelocity = -2100;
+                    flyWheelTime = timer.seconds();
+                } else if (gamepad2.b) {
+                    //stop
+                    targetVelocity = 0;
+                    flyWheelTime = timer.seconds();
+                }
+                Operator.flyWheel.setVelocity(targetVelocity);
             }
             Operator.intake.setPower(gamepad2.left_trigger * intakeSpeed);
             Operator.transfer.setPower(gamepad2.left_trigger * intakeSpeed);
@@ -181,15 +258,27 @@ public class teleOp extends LinearOpMode {
         boolean clusterFound = false;
         for (AprilTagDetection detection : tagProcessor.getDetections()) {
             if (detection instanceof AprilTagClusterDetection) {
-                AprilTagClusterDetection cluster = (AprilTagClusterDetection) detection;
-                tagDist = cluster.ftcPose.range;
-                telemetry.addData("Distance to cluster", cluster.ftcPose.range);
-                telemetry.addData("Cluster Info", cluster.metadata.name);
-                break;
+                AprilTagClusterDetection detectedCluster = (AprilTagClusterDetection) detection;
+                String clusterName = detectedCluster.metadata.name;
+                double clusterRoll = detectedCluster.ftcPose.roll;
+
+                //Correct alliance?
+                if (clusterName.startsWith("R") && alliance == "Red" || clusterName.startsWith("B") && alliance == "Blue") {
+                    //Is it down or up?
+                    if (Math.abs(clusterRoll) < 90) {
+                        tagDist = detectedCluster.ftcPose.range;
+                        telemetry.addData("Distance to cluster", tagDist);
+                        telemetry.addData("Cluster Info", clusterName);
+                        telemetry.update();
+                        break;
+                    }
+                }
             }
         }
-        if (!clusterFound) telemetry.addData("Cluster", "Searching");
+
+        if (!clusterFound) {
+            telemetry.addData("Cluster Tag", "Searching");
+        }
         telemetry.update();
     }
-
 }
