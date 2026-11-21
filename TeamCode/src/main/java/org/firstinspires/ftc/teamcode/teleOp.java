@@ -16,7 +16,7 @@ import org.firstinspires.ftc.vision.apriltag.AprilTagClusterDetection;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 @Config
-@TeleOp (name = "TeleOp")
+@TeleOp (name = "TeleOp2")
 public class teleOp extends LinearOpMode {
     drivetrain driveTrain = new drivetrain();
     initOperator Operator = new initOperator();
@@ -130,10 +130,7 @@ public class teleOp extends LinearOpMode {
         if (lockOn) {
             double error = tagBear - aimOff;
             pivot = Math.abs(error) < aimDead ? 0 : Range.clip(-error * turnGain, -maxTurn, maxTurn);
-            rotX = x;
             if (Math.abs(y) > 0.1 || !wasLockedOn) {
-                rotY = y;
-
                 holdRange = tagDist;
             } else {
                 rotY = Range.clip((tagDist - holdRange) * rangeGain, -maxRange, maxRange);
