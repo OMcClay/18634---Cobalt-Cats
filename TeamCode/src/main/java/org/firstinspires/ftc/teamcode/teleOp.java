@@ -269,8 +269,15 @@ public class teleOp extends LinearOpMode {
             Operator.intake.setPower(gamepad2.left_trigger * intakeSpeed);
             Operator.transfer.setPower(gamepad2.left_trigger * intakeSpeed);
         } else {
-            Operator.intake.setPower(gamepad2.left_trigger * intakeSpeed);
-            Operator.transfer.setPower(0);
+            if (intakeSpeed < 0) {
+                //Lets transfer run backwards no matter what
+                Operator.intake.setPower(gamepad2.left_trigger * intakeSpeed);
+                Operator.transfer.setPower(gamepad2.left_trigger * intakeSpeed);
+            } else {
+                //Prevents transfer runnign forwards
+                Operator.intake.setPower(gamepad2.left_trigger * intakeSpeed);
+                Operator.transfer.setPower(0);
+            }
         }
     }
 
