@@ -6,6 +6,7 @@ import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
+import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
@@ -19,7 +20,6 @@ import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 public class teleOp extends LinearOpMode {
     drivetrain driveTrain = new drivetrain();
     initOperator Operator = new initOperator();
-
     double intakeSpeed = 0.75;
     double driveSpeed = 1;
     boolean flyWheelStatus = false;
@@ -30,7 +30,22 @@ public class teleOp extends LinearOpMode {
     boolean square;
     public static double targetVelocity;
     double tagDist;
+    double tagX;
+    double tagY;
+    double tagBear;
+    double tagYaw;
     String gatePos = "closed";
+
+    // Constants
+    static final double turnGain = 0.03;
+    static final double maxTurn = 0.5;
+    static final double aimDead = 1.0;
+    static final double aimOff = 0.0;
+    static final double rangeGain = 0.06;
+    static final double maxRange = 0.4;
+    double lastTagTime = -10;
+    double holdRange = 0;                      // radius (inches) we keep while circling
+    boolean wasLockedOn = false;
     String alliance;
     YawPitchRollAngles robotOrientation;
     AprilTagProcessor tagProcessor;
@@ -111,6 +126,20 @@ public class teleOp extends LinearOpMode {
 
         double rotX = x * Math.cos(-yaw) - y * Math.sin(-yaw);
         double rotY = x * Math.sin(-yaw) + y * Math.cos(-yaw);
+        boolean lockOn = gamepad1.left_bumper;
+        if (lockOn) {
+            double error = tagBear - aimOff;
+            pivot = Math.abs(error) < aimDead ? 0 : Range.clip(-error * turnGain, -maxTurn, maxTurn);
+            rotX = x;
+            if (Math.abs(y) > 0.1 || !wasLockedOn) {
+                rotY = y;
+
+                holdRange = tagDist;
+            } else {
+                rotY = Range.clip((tagDist - holdRange) * rangeGain, -maxRange, maxRange);
+            }
+        }
+        wasLockedOn = lockOn;
 
         double denominator = Math.max(Math.abs(rotY) + Math.abs(rotX) + Math.abs(pivot), 1);
 
@@ -306,22 +335,22 @@ public class teleOp extends LinearOpMode {
                 double clusterRoll = detectedCluster.ftcPose.roll;
 
                 //Correct alliance?
-                if (clusterName.startsWith("R") && alliance == "Red" || clusterName.startsWith("B") && alliance == "Blue") {
+                if (clusterName.startsWith("R") && "Red".equals(alliance) || clusterName.startsWith("B") && "Blue".equals(alliance)) {
                     //Is it down or up?
                     if (Math.abs(clusterRoll) < 90) {
                         tagDist = detectedCluster.ftcPose.range;
+                        tagX = detectedCluster.ftcPose.x;
+                        tagY = detectedCluster.ftcPose.y;
+                        tagBear = detectedCluster.ftcPose.bearing;
+                        tagYaw = detectedCluster.ftcPose.yaw;
+                        lastTagTime = timer.seconds();
                         telemetry.addData("Distance to cluster", tagDist);
                         telemetry.addData("Cluster Info", clusterName);
-                        telemetry.update();
                         break;
                     }
                 }
             }
         }
-
-        if (!clusterFound) {
-            telemetry.addData("Cluster Tag", "Searching");
-        }
-        telemetry.update();
+        // no telemetry.update() here: operator() already calls it once per loop
     }
 }
