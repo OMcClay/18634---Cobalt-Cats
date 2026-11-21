@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.acmerobotics.dashboard.FtcDashboard;
+import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -13,7 +14,7 @@ import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagClusterDetection;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
-
+@Config
 @TeleOp (name = "TeleOp")
 public class teleOp extends LinearOpMode {
     drivetrain driveTrain = new drivetrain();
@@ -26,11 +27,8 @@ public class teleOp extends LinearOpMode {
     double flyWheelTime;
     double lastShootTime;
     double lastSquare = 0;
-    private boolean gateOpen = false;
-    static final double OPEN_MARGIN  = 150;  // open this far BELOW target
-    static final double CLOSE_MARGIN = 250;  // only close if speed drops this far below target
     boolean square;
-    double targetVelocity;
+    public static double targetVelocity;
     double tagDist;
     String gatePos = "closed";
     String alliance;
@@ -86,11 +84,13 @@ public class teleOp extends LinearOpMode {
 //            Operator.flower.setPower(0);
 //        }
 
-        // State what alliance robot is
+        //Manually state what alliance robot is
         if (gamepad1.dpad_up) {
             alliance = "Blue";
+            blackboard.put("Alliance", "Blue");
         } else if (gamepad1.dpad_down) {
             alliance = "Red";
+            blackboard.put("Alliance", "Red");
         }
     }
 
@@ -126,72 +126,175 @@ public class teleOp extends LinearOpMode {
     }
 
     public void operator() {
-        if (tagDist > 0) {
-            targetVelocity = Operator.velocityM * tagDist + Operator.velocityB;
+        //Gate Control
+        if(!square) {
+            // manual gate
+            if (gamepad2.right_bumper) {
+                gatePos = "open";
+                Operator.gate.setPosition(Operator.openGate);
+            } else {
+                gatePos = "closed";
+                Operator.gate.setPosition(Operator.closeGate);
+            }
         } else {
-            targetVelocity = 1300;   // no tag seen yet: use the old fixed speed
+            if (gamepad2.left_bumper) {
+                //Left bumper stops gate being automatically open with square, then manual control gate
+                if (gamepad2.right_bumper) {
+                    gatePos = "open";
+                    Operator.gate.setPosition(Operator.openGate);
+                } else {
+                    gatePos = "closed";
+                    Operator.gate.setPosition(Operator.closeGate);
+                }
+            } else {
+                //Gate will (almost) always be open when square pressed (shooting controlled by transfer)
+                if ((targetVelocity != 0) && (Operator.flyWheel.getVelocity() > (targetVelocity - 150) && Operator.flyWheel.getVelocity() < (targetVelocity + 150))) {
+                    Operator.gate.setPosition(Operator.openGate);
+                    gatePos = "open";
+                } else {
+                    Operator.gate.setPosition(Operator.closeGate);
+                    gatePos = "closed";
+                }
+            }
         }
 
-        //intake plus transfer speed
-        if ((gamepad2.left_stick_y >= 0.1) || (gamepad2.left_stick_y <= -0.1)){
-            intakeSpeed = (0.75 * (-gamepad2.left_stick_y));
-        } else {
-            intakeSpeed = (0.75);
+        if (!(targetVelocity == 0 ) && (Operator.flyWheel.getVelocity() > (targetVelocity - 30) && Operator.flyWheel.getVelocity() < (targetVelocity + 30))) {
+            //Rumble operator controller when shooter up to speed
+            gamepad2.rumble(250);
         }
-        //Gate Control
-        double vel = Operator.flyWheel.getVelocity();
-        if (vel >= targetVelocity - OPEN_MARGIN) {
-            gateOpen = true;
-        } else if (vel < targetVelocity - CLOSE_MARGIN) {
-            gateOpen = false;
-        }
-        boolean openCmd = gateOpen || gamepad2.right_bumper;   // bumper = force open
-        Operator.gate.setPosition(openCmd ? Operator.openGate : Operator.closeGate);
 
         // Shoot
         if (gamepad2.square) {
-            Operator.flyWheel.setVelocity(targetVelocity);   // always spin up right away
-            flyWheelStatus = true;
-            if (lastShootTime > timer.seconds() - 1.25) {
+            square = true;
+            //Target Velocity from equation
+            if (!(tagDist >= 0)) {
+                targetVelocity = 1180;
+            } else {
+                targetVelocity = Operator.velocityM * tagDist + Operator.velocityB;
+            }
+
+            //double targetVelocity = 1300;
+
+            if (lastShootTime > timer.seconds() - 0.5) {
+                //reverse transfer & shooter if last time square was pressed wasn't too long ago
                 Operator.transfer.setPower(-0.3);
                 Operator.intake.setPower(-0.15);
+                Operator.flyWheel.setVelocity(-1000);
+                Operator.gate.setPosition(Operator.closeGate);
+            } else {
+                //Once reversed, set the velocity to the target velocity
+                Operator.flyWheel.setVelocity(targetVelocity);
             }
-            if (openCmd) {
+
+            //Shoot (after shooters have been reversed and gate is open)
+            if (Operator.gate.getPosition() == Operator.openGate && lastShootTime < timer.seconds() - 1.25) {
                 if (!(gamepad2.left_trigger > 0.2)) {
-                    Operator.transfer.setPower(1);
-                    Operator.intake.setPower(1);
+                    //Controls shooting using transfer & intake instead of gate
+                    if (!(targetVelocity == 0 ) && (Operator.flyWheel.getVelocity() > (targetVelocity - 30) && Operator.flyWheel.getVelocity() < (targetVelocity + 30))){
+                        //If up to speed, run intake & transfer to feed into shooting
+                        Operator.transfer.setPower(0.85);
+                        Operator.intake.setPower(0.85);
+                    } else {
+                        //If not up to speed, then prevent balls from going in to shoot
+                        Operator.transfer.setPower(0);
+                        Operator.intake.setPower(0);
+                    }
+
                 } else {
-                    Operator.transfer.setPower(gamepad2.left_trigger * intakeSpeed);
-                    Operator.intake.setPower(gamepad2.left_trigger * intakeSpeed);
+                    //Manually control intake and transfer
+                    intakeAndTransfer();
                 }
+
             }
+            lastSquare = timer.seconds();
         } else {
+            square = false;
+            if (lastSquare > timer.seconds() - 1) {
+                targetVelocity = 0;
+            }
             if (flyWheelTime <= timer.seconds() - 0.3) {
                 if (gamepad2.triangle && !flyWheelStatus) {
-                    Operator.flyWheel.setVelocity(targetVelocity);
+                    // toggle on
+                    targetVelocity = 1300;
                     flyWheelStatus = true;
                     flyWheelTime = timer.seconds();
                 } else if (gamepad2.triangle && flyWheelStatus) {
-                    Operator.flyWheel.setVelocity(0);
+                    // toggle off
+                    targetVelocity = 0;
                     flyWheelStatus = false;
                     flyWheelTime = timer.seconds();
-                } else if (gamepad2.touchpad) {
-                    Operator.flyWheel.setVelocity(900);
-                } else if (gamepad2.share) {
-                    Operator.flyWheel.setVelocity(-2100);
-                } else if (gamepad2.b) {
-                    Operator.flyWheel.setVelocity(0);
+                } else if (gamepad2.dpad_up) {
+                    targetVelocity = 1400;
                     flyWheelStatus = false;
+                    flyWheelTime = timer.seconds();
+                } else if (gamepad2.dpad_down) {
+                    targetVelocity = 1200;
+                    flyWheelStatus = false;
+                    flyWheelTime = timer.seconds();
                 }
+                else if (gamepad2.touchpad) {
+                    //poop
+                    targetVelocity = 900;
+                    flyWheelTime = timer.seconds();
+                } else if (gamepad2.share) {
+                    // reverse
+                    targetVelocity = -2100;
+                    flyWheelTime = timer.seconds();
+                } else if (gamepad2.b) {
+                    //stop
+                    Operator.flyWheel.setPower(0);
+//                    targetVelocity = 0;
+                    flyWheelTime = timer.seconds();
+                }
+                Operator.flyWheel.setVelocity(targetVelocity);
             }
-            Operator.intake.setPower(gamepad2.left_trigger * intakeSpeed);
-            Operator.transfer.setPower(gamepad2.left_trigger * intakeSpeed);
+            if (gamepad2.left_bumper) {
+                if (!(targetVelocity == 0 ) && (Operator.flyWheel.getVelocity() > (targetVelocity - 30) && Operator.flyWheel.getVelocity() < (targetVelocity + 40))){
+                    //If up to speed, run intake & transfer to feed into shooting
+                    Operator.transfer.setPower(0.85);
+                    Operator.intake.setPower(0.85);
+                } else {
+                    //If not up to speed, then prevent balls from going in to shoot
+                    Operator.transfer.setPower(0);
+                    Operator.intake.setPower(0);
+                }
+            } else {
+                intakeAndTransfer();
+            }
+
             lastShootTime = timer.seconds();
         }
+
         telemetry.addData("velocity", Operator.flyWheel.getVelocity());
-        telemetry.addData("target", targetVelocity);
+        telemetry.addData("Target Velocity", targetVelocity);
         telemetry.addData("imu", robotOrientation.getYaw(AngleUnit.DEGREES));
         telemetry.update();
+    }
+
+    public void intakeAndTransfer() {
+        //Intake & transfer speed
+        if ((gamepad2.left_stick_y >= 0.1) || (gamepad2.left_stick_y <= -0.1)){
+            intakeSpeed = (0.8 * (-gamepad2.left_stick_y));
+        }
+        else {
+            intakeSpeed = (0.8);
+        }
+
+        //Whether transfer runs or not
+        if(gatePos == "open") {
+            Operator.intake.setPower(gamepad2.left_trigger * intakeSpeed);
+            Operator.transfer.setPower(gamepad2.left_trigger * intakeSpeed);
+        } else {
+            if (intakeSpeed < 0) {
+                //Lets transfer run backwards no matter what
+                Operator.intake.setPower(gamepad2.left_trigger * intakeSpeed);
+                Operator.transfer.setPower(gamepad2.left_trigger * intakeSpeed);
+            } else {
+                //Prevents transfer running forwards
+                Operator.intake.setPower(gamepad2.left_trigger * intakeSpeed);
+                Operator.transfer.setPower(0);
+            }
+        }
     }
 
     public void aprilTag() {

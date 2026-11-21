@@ -29,7 +29,7 @@ public class shootAuto extends LinearOpMode {
         double closestCluster = Double.MAX_VALUE;
         boolean clusterFound = false;
         String closestClusterName = "Lorem Ipsum :)"; //Clears errors
-
+        blackboard.remove("Alliance");
         telemetry.addData("Initialize", "Initialized");
         telemetry.update();
 

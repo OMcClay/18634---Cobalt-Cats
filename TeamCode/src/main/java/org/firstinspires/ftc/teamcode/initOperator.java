@@ -20,12 +20,12 @@ public class initOperator {
 //    public final double flowerUp = 0;
     public final double closeGate = 0;
     public final double openGate = 0.4;
-    double shootP = 90;
-    double shootI = 0.075;
-    double shootD = 9;
-    double shootF = 14.5;
-    double velocityM = 5.14743;
-    double velocityB = 1044.003;
+    public static double shootP = 90;
+    public static double shootI = 0.075;
+    public static double shootD = 9;
+    public static double shootF = 14.5;
+    double velocityM = 4;
+    double velocityB = 942;
     public PIDFCoefficients shooterPIDF = new PIDFCoefficients(shootP,shootI,shootD,shootF);
 
     public void initOperator(HardwareMap hardwareMap) {

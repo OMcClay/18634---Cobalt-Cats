@@ -15,6 +15,7 @@ public class waitShootAuto extends LinearOpMode{
         robot.init(hardwareMap);
         autoFunc = new autoFunctions(this, robot);
         double set_power = 0.5;
+        blackboard.remove("Alliance");
 
         waitForStart();
 
