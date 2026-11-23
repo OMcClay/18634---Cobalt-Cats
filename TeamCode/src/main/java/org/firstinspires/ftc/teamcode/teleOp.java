@@ -15,6 +15,7 @@ import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagClusterDetection;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
+
 @Config
 @TeleOp (name = "TeleOp2")
 public class teleOp extends LinearOpMode {
@@ -129,20 +130,22 @@ public class teleOp extends LinearOpMode {
         double rotX = x * Math.cos(-yaw) - y * Math.sin(-yaw);
         double rotY = x * Math.sin(-yaw) + y * Math.cos(-yaw);
         boolean lockOn = gamepad1.left_bumper;
-        if (lockOn) {
-            double error = tagBear - aimOff;
-            double derivative = error - lastAimError;
-            pivot = Math.abs(error) < aimDead ? 0 : Range.clip(-error * turnGain - derivative * turnD, -maxTurn, maxTurn);
-            if (Math.abs(y) > 0.1 || !wasLockedOn) {
-                holdRange = tagDist;
-            } else {
-                rotY = Range.clip((tagDist - holdRange) * rangeGain, -maxRange, maxRange);
-            }
-            lastAimError = error;
-        } else {
-            lastAimError = 0;
-        }
+        if (lastTagTime < 5) {
+            if (lockOn) {
 
+                double error = tagBear - aimOff;
+                double derivative = error - lastAimError;
+                pivot = Math.abs(error) < aimDead ? 0 : Range.clip(-error * turnGain - derivative * turnD, -maxTurn, maxTurn);
+                if (Math.abs(y) > 0.1 || !wasLockedOn) {
+                    holdRange = tagDist;
+                } else {
+                    rotY = Range.clip((tagDist - holdRange) * rangeGain, -maxRange, maxRange);
+                }
+                lastAimError = error;
+            } else {
+                lastAimError = 0;
+            }
+        }
         wasLockedOn = lockOn;
         double denominator = Math.max(Math.abs(rotY) + Math.abs(rotX) + Math.abs(pivot), 1);
         double frontLeft = rotY + rotX + pivot;
@@ -198,10 +201,12 @@ public class teleOp extends LinearOpMode {
         if (gamepad2.square) {
             square = true;
             //Target Velocity from equation
-            if (!(tagDist >= 0)) {
-                targetVelocity = 1180;
-            } else {
-                targetVelocity = Operator.velocityM * tagDist + Operator.velocityB;
+            if (lastTagTime < 10) {
+                if (!(tagDist >= 0)) {
+                    targetVelocity = 1180;
+                } else {
+                    targetVelocity = Operator.velocityM * tagDist + Operator.velocityB;
+                }
             }
 
             //double targetVelocity = 1300;
@@ -359,3 +364,5 @@ public class teleOp extends LinearOpMode {
         // no telemetry.update() here: operator() already calls it once per loop
     }
 }
+
+//If abs value yaw < 80 or the abs value bearing < 10 and abs value (bearing + yaw) < 80 then good
