@@ -303,6 +303,9 @@ public class teleOp extends LinearOpMode {
         telemetry.addData("velocity", Operator.flyWheel.getVelocity());
         telemetry.addData("Target Velocity", targetVelocity);
         telemetry.addData("imu", robotOrientation.getYaw(AngleUnit.DEGREES));
+        telemetry.addData("Distance to cluster", tagDist);
+        telemetry.addData("Tag Yaw", tagYaw);
+        telemetry.addData("Tag Bearing", tagBear);
         telemetry.update();
     }
 
@@ -351,8 +354,7 @@ public class teleOp extends LinearOpMode {
                         tagYaw = detectedCluster.ftcPose.yaw;
                         tagFound = true;
                         lastTagTime = timer.seconds();
-                        telemetry.addData("Distance to cluster", tagDist);
-                        telemetry.addData("Cluster Info", clusterName);
+
                         break;
                     }
                 }
