@@ -34,6 +34,7 @@ public class teleOp extends LinearOpMode {
     double tagY;
     double tagBear;
     double tagYaw;
+    boolean tagFound = false;
     String gatePos = "closed";
 
     // Constants
@@ -43,8 +44,10 @@ public class teleOp extends LinearOpMode {
     static final double aimOff = 0.0;
     static final double rangeGain = 0.06;
     static final double maxRange = 0.4;
+    double lastAimError = 0;
+    double turnD = 0.001;
     double lastTagTime = -10;
-    double holdRange = 0;                      // radius (inches) we keep while circling
+    double holdRange = 0;
     boolean wasLockedOn = false;
     String alliance;
     YawPitchRollAngles robotOrientation;
@@ -69,6 +72,7 @@ public class teleOp extends LinearOpMode {
         timer.reset();
         while (opModeIsActive()) {
             robotOrientation = driveTrain.imu.getRobotYawPitchRollAngles();
+            tagFound = false;
             driver();
             operator();
 
@@ -121,25 +125,26 @@ public class teleOp extends LinearOpMode {
         double y = -gamepad1.left_stick_y;
         double x = gamepad1.left_stick_x;
         double pivot = gamepad1.right_stick_x;
-
         double yaw = robotOrientation.getYaw(AngleUnit.RADIANS);
-
         double rotX = x * Math.cos(-yaw) - y * Math.sin(-yaw);
         double rotY = x * Math.sin(-yaw) + y * Math.cos(-yaw);
         boolean lockOn = gamepad1.left_bumper;
         if (lockOn) {
             double error = tagBear - aimOff;
-            pivot = Math.abs(error) < aimDead ? 0 : Range.clip(-error * turnGain, -maxTurn, maxTurn);
+            double derivative = error - lastAimError;
+            pivot = Math.abs(error) < aimDead ? 0 : Range.clip(-error * turnGain - derivative * turnD, -maxTurn, maxTurn);
             if (Math.abs(y) > 0.1 || !wasLockedOn) {
                 holdRange = tagDist;
             } else {
                 rotY = Range.clip((tagDist - holdRange) * rangeGain, -maxRange, maxRange);
             }
+            lastAimError = error;
+        } else {
+            lastAimError = 0;
         }
+
         wasLockedOn = lockOn;
-
         double denominator = Math.max(Math.abs(rotY) + Math.abs(rotX) + Math.abs(pivot), 1);
-
         double frontLeft = rotY + rotX + pivot;
         double frontRight = rotY - rotX - pivot;
         double backLeft = rotY - rotX + pivot;
@@ -201,7 +206,7 @@ public class teleOp extends LinearOpMode {
 
             //double targetVelocity = 1300;
 
-            if (lastShootTime > timer.seconds() - 0.5) {
+            if (lastShootTime > timer.seconds() - 0.3) {
                 //reverse transfer & shooter if last time square was pressed wasn't too long ago
                 Operator.transfer.setPower(-0.3);
                 Operator.intake.setPower(-0.15);
@@ -213,7 +218,7 @@ public class teleOp extends LinearOpMode {
             }
 
             //Shoot (after shooters have been reversed and gate is open)
-            if (Operator.gate.getPosition() == Operator.openGate && lastShootTime < timer.seconds() - 1.25) {
+            if (Operator.gate.getPosition() == Operator.openGate && lastShootTime < timer.seconds() - 1.5) {
                 if (!(gamepad2.left_trigger > 0.2)) {
                     //Controls shooting using transfer & intake instead of gate
                     if (!(targetVelocity == 0 ) && (Operator.flyWheel.getVelocity() > (targetVelocity - 30) && Operator.flyWheel.getVelocity() < (targetVelocity + 30))){
@@ -340,6 +345,7 @@ public class teleOp extends LinearOpMode {
                         tagY = detectedCluster.ftcPose.y;
                         tagBear = detectedCluster.ftcPose.bearing;
                         tagYaw = detectedCluster.ftcPose.yaw;
+                        tagFound = true;
                         lastTagTime = timer.seconds();
                         telemetry.addData("Distance to cluster", tagDist);
                         telemetry.addData("Cluster Info", clusterName);
