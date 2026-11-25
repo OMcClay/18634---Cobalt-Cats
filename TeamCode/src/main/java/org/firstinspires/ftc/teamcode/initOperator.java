@@ -1,9 +1,11 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.acmerobotics.dashboard.config.Config;
+import com.qualcomm.hardware.rev.RevBlinkinLedDriver;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -16,6 +18,11 @@ public class initOperator {
     Servo gate;
 //    Servo flower;
     CRServo flower;
+    DigitalChannel leftLEDG;
+    DigitalChannel leftLEDR;
+    DigitalChannel rightLEDG;
+    DigitalChannel rightLEDR;
+    RevBlinkinLedDriver stripLED;
 //    public final double flowerDown = 0.95;
 //    public final double flowerUp = 0;
     public final double closeGate = 0;
@@ -34,6 +41,16 @@ public class initOperator {
         intake = hardwareMap.get(DcMotor.class, "intake");
         transfer = hardwareMap.get(DcMotor.class, "transfer");
         flyWheel = hardwareMap.get(DcMotorEx.class, "flyWheel");
+        leftLEDG = hardwareMap.get(DigitalChannel.class,"leftLEDG");
+        leftLEDR = hardwareMap.get(DigitalChannel.class,"leftLEDR");
+        rightLEDR = hardwareMap.get(DigitalChannel.class,"rightLEDR");
+        rightLEDG = hardwareMap.get(DigitalChannel.class,"rightLEDG");
+        stripLED = hardwareMap.get(RevBlinkinLedDriver.class, "stripLED");
+
+        leftLEDG.setMode(DigitalChannel.Mode.OUTPUT);
+        leftLEDR.setMode(DigitalChannel.Mode.OUTPUT);
+        rightLEDG.setMode(DigitalChannel.Mode.OUTPUT);
+        rightLEDR.setMode(DigitalChannel.Mode.OUTPUT);
 
         flyWheel.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, shooterPIDF);
         flyWheel.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);

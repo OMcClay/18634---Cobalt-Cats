@@ -1,8 +1,13 @@
 package org.firstinspires.ftc.teamcode;
 
+import static java.lang.Math.atan;
+import static java.lang.Math.cos;
+import static java.lang.Math.sin;
+
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
+import com.qualcomm.hardware.rev.RevBlinkinLedDriver;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -38,7 +43,7 @@ public class teleOp extends LinearOpMode {
     boolean tagFound = false;
     String gatePos = "closed";
 
-    // Constants
+    // Rotate around point variables
     static final double turnGain = 0.03;
     static final double maxTurn = 0.5;
     static final double aimDead = 1.0;
@@ -50,6 +55,13 @@ public class teleOp extends LinearOpMode {
     double lastTagTime = -10;
     double holdRange = 0;
     boolean wasLockedOn = false;
+
+    //Alignment with tags variables
+    double maxAngleRight;
+    double maxAngleLeft;
+    float rightTuning = 0.3f;
+    float leftTuning = 0.5f;
+    float buffer = 0.2f;
     String alliance;
     YawPitchRollAngles robotOrientation;
     AprilTagProcessor tagProcessor;
@@ -76,6 +88,31 @@ public class teleOp extends LinearOpMode {
             tagFound = false;
             driver();
             operator();
+            if(gamepad1.options) {
+                Operator.stripLED.setPattern(RevBlinkinLedDriver.BlinkinPattern.LAWN_GREEN);
+                Operator.leftLEDG.setState(false);
+                Operator.leftLEDR.setState(true);
+                Operator.rightLEDG.setState(false);
+                Operator.rightLEDR.setState(true);
+                sleep(500);
+                Operator.stripLED.setPattern(RevBlinkinLedDriver.BlinkinPattern.GOLD);
+                Operator.leftLEDG.setState(true);
+                Operator.leftLEDR.setState(true);
+                Operator.rightLEDG.setState(true);
+                Operator.rightLEDR.setState(true);
+                sleep(500);
+                Operator.leftLEDG.setState(true);
+                Operator.leftLEDR.setState(false);
+                Operator.rightLEDG.setState(true);
+                Operator.rightLEDR.setState(false);
+                sleep(500);
+                Operator.leftLEDG.setState(false);
+                Operator.leftLEDR.setState(false);
+                Operator.rightLEDG.setState(false);
+                Operator.rightLEDR.setState(false);
+                sleep(500);
+            }
+
 
         }
     }
@@ -361,8 +398,57 @@ public class teleOp extends LinearOpMode {
                 }
             }
         }
+
+
+verifyAlignment();
         // no telemetry.update() here: operator() already calls it once per loop
     }
+
+
+    public void verifyAlignment() {
+
+        maxAngleRight=atan((10*cos(tagYaw)+1.4*sin(tagYaw))/(tagDist-(10*sin(tagYaw)+1.4*cos(tagYaw))));
+        maxAngleLeft=atan((-10*cos(tagYaw)-1.4*sin(tagYaw))/(tagDist-(-10*sin(tagYaw)-1.4*cos(tagYaw))));
+        if(maxAngleRight > maxAngleLeft){
+            maxAngleRight-=buffer;
+            maxAngleLeft+=buffer;
+        } else if(maxAngleLeft > maxAngleRight){
+            maxAngleRight+=buffer;
+            maxAngleLeft-=buffer;
+        }
+        maxAngleRight += rightTuning;
+        maxAngleLeft += leftTuning;
+
+        if(maxAngleRight > maxAngleLeft){
+            if(tagBear < maxAngleRight && tagBear > maxAngleLeft){
+                //Set Green
+                Operator.leftLEDG.setState(true);
+                Operator.leftLEDR.setState(false);
+                Operator.rightLEDG.setState(true);
+                Operator.rightLEDR.setState(false);
+
+                Operator.stripLED.setPattern(RevBlinkinLedDriver.BlinkinPattern.LAWN_GREEN);
+            }
+        } else if (maxAngleRight < maxAngleLeft){
+            if (tagBear > maxAngleRight && tagBear < maxAngleLeft) {
+                //Set Green
+                Operator.leftLEDG.setState(true);
+                Operator.leftLEDR.setState(false);
+                Operator.rightLEDG.setState(true);
+                Operator.rightLEDR.setState(false);
+            }
+        } else {
+            //Set Red
+            Operator.leftLEDG.setState(false);
+            Operator.leftLEDR.setState(true);
+            Operator.rightLEDG.setState(true);
+            Operator.rightLEDR.setState(true);
+        }
+    }
+
+
 }
 
-//If abs value yaw < 80 or the abs value bearing < 10 and abs value (bearing + yaw) < 80 then good
+//If abs value yaw < 80 or the abs value bearing < 10
+//disregard ^^^
+// abs value bearing < arctan(    (10*cos(yaw) + 1.4*sin(yaw)) / (distTag - (10*sin(yaw)+1.4cos(yaw)))          and abs value (bearing + yaw) < 80 then good
