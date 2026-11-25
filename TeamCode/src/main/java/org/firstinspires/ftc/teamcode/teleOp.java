@@ -132,14 +132,6 @@ public class teleOp extends LinearOpMode {
             }
         }
 
-        //Flower servos
-//        if (gamepad1.left_bumper) {
-//            Operator.flower.setPower(1);
-//        } else if (gamepad1.right_bumper) {
-//            Operator.flower.setPower(-1);
-//        } else {
-//            Operator.flower.setPower(0);
-//        }
 
         //Manually state what alliance robot is
         if (gamepad1.dpad_up) {
@@ -238,12 +230,10 @@ public class teleOp extends LinearOpMode {
         if (gamepad2.square) {
             square = true;
             //Target Velocity from equation
-            if (lastTagTime < 10) {
-                if (!(tagDist >= 0)) {
-                    targetVelocity = 1180;
-                } else {
-                    targetVelocity = Operator.velocityM * tagDist + Operator.velocityB;
-                }
+            if (!(tagDist >= 0)) {
+                targetVelocity = 1180;
+            } else {
+                targetVelocity = Operator.velocityM * tagDist + Operator.velocityB;
             }
 
             //double targetVelocity = 1300;
@@ -315,8 +305,8 @@ public class teleOp extends LinearOpMode {
                     flyWheelTime = timer.seconds();
                 } else if (gamepad2.b) {
                     //stop
-                    Operator.flyWheel.setPower(0);
-//                    targetVelocity = 0;
+//                    Operator.flyWheel.setPower(0);
+                    targetVelocity = 0;
                     flyWheelTime = timer.seconds();
                 }
                 Operator.flyWheel.setVelocity(targetVelocity);
