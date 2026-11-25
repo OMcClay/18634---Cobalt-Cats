@@ -40,6 +40,7 @@ public class teleOp extends LinearOpMode {
     double tagY;
     double tagBear;
     double tagYaw;
+    double offset = 0;
     boolean tagFound = false;
     String gatePos = "closed";
 
@@ -159,6 +160,19 @@ public class teleOp extends LinearOpMode {
         double rotX = x * Math.cos(-yaw) - y * Math.sin(-yaw);
         double rotY = x * Math.sin(-yaw) + y * Math.cos(-yaw);
         boolean lockOn = gamepad1.left_bumper;
+        if (lockOn) {
+            double error = tagBear - aimOff + offset;
+            double derivative = error - lastAimError;
+            pivot = Math.abs(error) < aimDead ? 0 : Range.clip(-error * turnGain - derivative * turnD, -maxTurn, maxTurn);
+
+            if (Math.abs(y) > 0.1 || !wasLockedOn) {
+                holdRange = tagDist;
+            } else {
+                rotY = Range.clip((tagDist - holdRange) * rangeGain, -maxRange, maxRange);
+            }
+            lastAimError = error;
+        } else {
+            lastAimError = 0;
         if (lastTagTime < 5) {
             if (lockOn) {
 
@@ -225,6 +239,9 @@ public class teleOp extends LinearOpMode {
             //Rumble operator controller when shooter up to speed
             gamepad2.rumble(250);
         }
+
+        if (gamepad1.dpad_left) offset -= 0.002;
+        else if (gamepad1.dpad_right) offset += 0.002;
 
         // Shoot
         if (gamepad2.square) {
