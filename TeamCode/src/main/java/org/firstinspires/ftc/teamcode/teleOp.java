@@ -22,7 +22,7 @@ import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 
 @Config
-@TeleOp (name = "TeleOp2")
+@TeleOp (name = "TeleOp")
 public class teleOp extends LinearOpMode {
     drivetrain driveTrain = new drivetrain();
     initOperator Operator = new initOperator();
@@ -60,9 +60,9 @@ public class teleOp extends LinearOpMode {
     //Alignment with tags variables
     double maxAngleRight;
     double maxAngleLeft;
-    float rightTuning = 0.3f;
-    float leftTuning = 0.5f;
-    float buffer = 0.2f;
+    float rightTuning = 0;
+    float leftTuning = 0;
+    float buffer = 0;
     String alliance;
     YawPitchRollAngles robotOrientation;
     AprilTagProcessor tagProcessor;
@@ -89,31 +89,9 @@ public class teleOp extends LinearOpMode {
             tagFound = false;
             driver();
             operator();
-            if(gamepad1.options) {
-                Operator.stripLED.setPattern(RevBlinkinLedDriver.BlinkinPattern.LAWN_GREEN);
-                Operator.leftLEDG.setState(false);
-                Operator.leftLEDR.setState(true);
-                Operator.rightLEDG.setState(false);
-                Operator.rightLEDR.setState(true);
-                sleep(500);
-                Operator.stripLED.setPattern(RevBlinkinLedDriver.BlinkinPattern.GOLD);
-                Operator.leftLEDG.setState(true);
-                Operator.leftLEDR.setState(true);
-                Operator.rightLEDG.setState(true);
-                Operator.rightLEDR.setState(true);
-                sleep(500);
-                Operator.leftLEDG.setState(true);
-                Operator.leftLEDR.setState(false);
-                Operator.rightLEDG.setState(true);
-                Operator.rightLEDR.setState(false);
-                sleep(500);
-                Operator.leftLEDG.setState(false);
-                Operator.leftLEDR.setState(false);
-                Operator.rightLEDG.setState(false);
-                Operator.rightLEDR.setState(false);
-                sleep(500);
-            }
+            verifyAlignment();
 
+//            ledOrange();
 
         }
     }
@@ -173,7 +151,8 @@ public class teleOp extends LinearOpMode {
             lastAimError = error;
         } else {
             lastAimError = 0;
-        if (lastTagTime < 5) {
+        }
+        if (lastTagTime < timer.seconds() + 5 || lockOn) {
             if (lockOn) {
 
                 double error = tagBear - aimOff;
@@ -240,18 +219,24 @@ public class teleOp extends LinearOpMode {
             gamepad2.rumble(250);
         }
 
-        if (gamepad1.dpad_left) offset -= 0.002;
-        else if (gamepad1.dpad_right) offset += 0.002;
+        if (gamepad1.dpad_left) {
+            offset -= 0.002;
+        } else if (gamepad1.dpad_right) {
+            offset += 0.002;
+        }
 
         // Shoot
         if (gamepad2.square) {
             square = true;
             //Target Velocity from equation
-            if (!(tagDist >= 0)) {
-                targetVelocity = 1180;
-            } else {
-                targetVelocity = Operator.velocityM * tagDist + Operator.velocityB;
+            if (lastTagTime < timer.seconds() + 5) {
+                if (!(tagDist >= 0)) {
+                    targetVelocity = 1180;
+                } else {
+                    targetVelocity = Operator.velocityM * tagDist + Operator.velocityB;
+                }
             }
+
 
             //double targetVelocity = 1300;
 
@@ -405,17 +390,16 @@ public class teleOp extends LinearOpMode {
                 }
             }
         }
-
-
-verifyAlignment();
+//        verifyAlignment();
         // no telemetry.update() here: operator() already calls it once per loop
     }
 
 
     public void verifyAlignment() {
-
-        maxAngleRight=atan((10*cos(tagYaw)+1.4*sin(tagYaw))/(tagDist-(10*sin(tagYaw)+1.4*cos(tagYaw))));
-        maxAngleLeft=atan((-10*cos(tagYaw)-1.4*sin(tagYaw))/(tagDist-(-10*sin(tagYaw)-1.4*cos(tagYaw))));
+        double yawRad = tagYaw * Math.PI/180;
+        double bearRad = tagBear * Math.PI/180;
+        maxAngleRight=atan((10*cos(yawRad)+1.4*sin(yawRad))/(tagDist-(10*sin(yawRad)+1.4*cos(yawRad)))) * 180/Math.PI;
+        maxAngleLeft=atan((-10*cos(yawRad)-1.4*sin(yawRad))/(tagDist-(-10*sin(yawRad)-1.4*cos(yawRad)))) * 180/Math.PI;
         if(maxAngleRight > maxAngleLeft){
             maxAngleRight-=buffer;
             maxAngleLeft+=buffer;
@@ -426,34 +410,66 @@ verifyAlignment();
         maxAngleRight += rightTuning;
         maxAngleLeft += leftTuning;
 
-        if(maxAngleRight > maxAngleLeft){
-            if(tagBear < maxAngleRight && tagBear > maxAngleLeft){
-                //Set Green
-                Operator.leftLEDG.setState(true);
-                Operator.leftLEDR.setState(false);
-                Operator.rightLEDG.setState(true);
-                Operator.rightLEDR.setState(false);
+        if (tagFound) {
+            if(maxAngleRight > maxAngleLeft){
+                if(tagBear < maxAngleRight && tagBear > maxAngleLeft){
+                    ledGreen();
+                    telemetry.addData("align", "green");
+                    telemetry.update();
 
-                Operator.stripLED.setPattern(RevBlinkinLedDriver.BlinkinPattern.LAWN_GREEN);
-            }
-        } else if (maxAngleRight < maxAngleLeft){
-            if (tagBear > maxAngleRight && tagBear < maxAngleLeft) {
-                //Set Green
-                Operator.leftLEDG.setState(true);
-                Operator.leftLEDR.setState(false);
-                Operator.rightLEDG.setState(true);
-                Operator.rightLEDR.setState(false);
+                } else {
+                    ledRed();
+                }
+            } else if (maxAngleRight < maxAngleLeft){
+                if (tagBear > maxAngleRight && tagBear < maxAngleLeft) {
+                    ledGreen();
+                    telemetry.addData("align", "green");
+                    telemetry.update();
+                } else {
+                    ledRed();
+                }
+            } else {
+                ledRed();
+                telemetry.addData("align", "red");
+                telemetry.update();
             }
         } else {
-            //Set Red
-            Operator.leftLEDG.setState(false);
-            Operator.leftLEDR.setState(true);
-            Operator.rightLEDG.setState(true);
-            Operator.rightLEDR.setState(true);
+            ledRed();
         }
+
     }
 
+    public void ledGreen() {
+        Operator.stripLED.setPattern(RevBlinkinLedDriver.BlinkinPattern.GREEN);
+        Operator.leftLEDG.setState(false);
+        Operator.leftLEDR.setState(true);
+        Operator.rightLEDG.setState(false);
+        Operator.rightLEDR.setState(true);
+    }
 
+    public void ledRed() {
+        Operator.stripLED.setPattern(RevBlinkinLedDriver.BlinkinPattern.RED);
+        Operator.leftLEDG.setState(true);
+        Operator.leftLEDR.setState(false);
+        Operator.rightLEDG.setState(true);
+        Operator.rightLEDR.setState(false);
+    }
+
+    public void ledOrange() {
+        Operator.stripLED.setPattern(RevBlinkinLedDriver.BlinkinPattern.ORANGE);
+        Operator.leftLEDG.setState(false);
+        Operator.leftLEDR.setState(false);
+        Operator.rightLEDG.setState(false);
+        Operator.rightLEDR.setState(false);
+    }
+
+    public void ledOff() {
+        Operator.stripLED.setPattern(RevBlinkinLedDriver.BlinkinPattern.BREATH_BLUE);
+        Operator.leftLEDG.setState(true);
+        Operator.leftLEDR.setState(true);
+        Operator.rightLEDG.setState(true);
+        Operator.rightLEDR.setState(true);
+    }
 }
 
 //If abs value yaw < 80 or the abs value bearing < 10
