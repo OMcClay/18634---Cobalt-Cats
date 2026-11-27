@@ -86,11 +86,12 @@ public class newAuto extends LinearOpMode {
             autoFunc.forward(60.0, set_power);
             autoFunc.left(5, set_power);
             autoFunc.turn_left(115, set_power); //actually 90
+            sleep(250);
             timer.reset();
-            // not sure if robot sees the tag
+            // should be more fixed, not tested yet
             boolean matchesAlliance = false;
             String savedAlliance = String.valueOf(blackboard.get("Alliance"));
-            while (timer.seconds() < 3) {
+            while (opModeIsActive() && timer.seconds() < 3) {
                 for (AprilTagDetection detection : tagProcessor.getDetections()) {
                     if (detection instanceof AprilTagClusterDetection) {
                         AprilTagClusterDetection currentCluster = (AprilTagClusterDetection) detection;
@@ -99,6 +100,12 @@ public class newAuto extends LinearOpMode {
                             break;
                         }
                     }
+                }
+                telemetry.addData("Matches Alliance: ", matchesAlliance);
+                telemetry.addData("Saved Alliance: ", savedAlliance);
+                telemetry.update();
+                if (matchesAlliance) {
+                    break;
                 }
             }
             if (matchesAlliance) {
