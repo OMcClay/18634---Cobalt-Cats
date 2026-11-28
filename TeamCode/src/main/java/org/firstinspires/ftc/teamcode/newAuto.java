@@ -23,7 +23,7 @@ public class newAuto extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
         robot.init(hardwareMap);
         autoFunc = new autoFunctions(this, robot);
-        double set_power = 0.5;
+        double set_power = 0.75;
         ElapsedTime timer = new ElapsedTime();
 
         tagProcessor = new AprilTagProcessor.Builder().build();

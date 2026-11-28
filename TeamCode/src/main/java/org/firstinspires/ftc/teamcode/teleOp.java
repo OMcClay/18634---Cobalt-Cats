@@ -60,7 +60,7 @@ public class teleOp extends LinearOpMode {
     //Alignment with tags variables
     double maxAngleRight;
     double maxAngleLeft;
-    float rightTuning = 0;
+    float rightTuning = -2;
     float leftTuning = 0;
     float buffer = 0;
     String alliance;
@@ -77,7 +77,13 @@ public class teleOp extends LinearOpMode {
         driveTrain.initDrive(hardwareMap);
         Operator.initOperator(hardwareMap);
         alliance = (String) blackboard.get("Alliance");
-
+        if (alliance == "Red") {
+            Operator.stripLED.setPattern(RevBlinkinLedDriver.BlinkinPattern.FIRE_MEDIUM);
+        } else if (alliance == "Blue") {
+            Operator.stripLED.setPattern(RevBlinkinLedDriver.BlinkinPattern.COLOR_WAVES_OCEAN_PALETTE);
+        } else {
+            Operator.stripLED.setPattern(RevBlinkinLedDriver.BlinkinPattern.CONFETTI);
+        }
         telemetry.addData("Alliance", alliance);
         telemetry.addData("Initialize", "Initialized");
         telemetry.update();
