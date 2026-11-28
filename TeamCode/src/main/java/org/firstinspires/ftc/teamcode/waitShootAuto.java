@@ -14,7 +14,7 @@ public class waitShootAuto extends LinearOpMode{
     public void runOpMode() throws InterruptedException{
         robot.init(hardwareMap);
         autoFunc = new autoFunctions(this, robot);
-        double set_power = 0.5;
+        double set_power = 0.7;
         blackboard.remove("Alliance");
 
         waitForStart();

@@ -22,7 +22,7 @@ public class shootAuto extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
         robot.init(hardwareMap);
         autoFunc = new autoFunctions(this, robot);
-        double set_power = 0.5;
+        double set_power = 0.7;
 
         tagProcessor = new AprilTagProcessor.Builder().build();
         visionPortal = new VisionPortal.Builder().setCamera(hardwareMap.get(WebcamName.class, "Eyes")).addProcessor(tagProcessor).build();
