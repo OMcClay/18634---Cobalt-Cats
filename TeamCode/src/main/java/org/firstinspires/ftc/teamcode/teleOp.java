@@ -60,7 +60,7 @@ public class teleOp extends LinearOpMode {
     //Alignment with tags variables
     double maxAngleRight;
     double maxAngleLeft;
-    float rightTuning = -2;
+    float rightTuning = -3;
     float leftTuning = 0;
     float buffer = 0;
     String alliance;
@@ -258,7 +258,7 @@ public class teleOp extends LinearOpMode {
             }
 
             //Shoot (after shooters have been reversed and gate is open)
-            if (Operator.gate.getPosition() == Operator.openGate && lastShootTime < timer.seconds() - 1.5) {
+            if (Operator.gate.getPosition() == Operator.openGate && lastShootTime < timer.seconds() - 1) {
                 if (!(gamepad2.left_trigger > 0.2)) {
                     //Controls shooting using transfer & intake instead of gate
                     if (!(targetVelocity == 0 ) && (Operator.flyWheel.getVelocity() > (targetVelocity - 30) && Operator.flyWheel.getVelocity() < (targetVelocity + 30))){
